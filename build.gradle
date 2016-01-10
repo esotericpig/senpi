@@ -1,0 +1,46 @@
+// senpi
+apply plugin: 'application'
+
+group = 'com.esotericpig.senpi'
+version = '0.1'
+description = 'pi base 12'
+
+ext.charset = 'UTF-8'
+ext.encoding = 'UTF-8'
+ext.locale = 'en_US'
+mainClassName = 'com.esotericpig.senpi.Senpi'
+
+javadoc.title = 'senpi'
+
+defaultTasks 'run'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  testCompile 'junit:junit:4.+'
+}
+
+compileJava {
+  encoding = project.ext.encoding
+}
+
+compileTestJava {
+  encoding = project.ext.encoding
+}
+
+javadoc {
+  options {
+    author = true
+    charSet = project.ext.charset
+    encoding = project.ext.encoding
+    locale = project.ext.locale
+    memberLevel = JavadocMemberLevel.PRIVATE // Show all
+    version = true
+  }
+}
+
+run {
+  standardInput = System.in
+}
