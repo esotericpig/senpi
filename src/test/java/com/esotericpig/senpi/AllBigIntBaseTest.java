@@ -24,7 +24,7 @@ public class AllBigIntBaseTest {
   public static String createRandNumStr(int base,int minLen,int maxLen,boolean allowZeroPad,Random rand) {
     if(base < 2) {
       // Avoid infinite loop at !allowZeroPad
-      throw new RuntimeException("Invalid base.");
+      throw new UnsupportedBaseException("Unsupported base: " + base);
     }
   
     int digit = 0;
@@ -39,15 +39,18 @@ public class AllBigIntBaseTest {
     else if(rand.nextBoolean()) {
       sb.append("+");
     }
+    
+    digit = rand.nextInt(base);
+    
     // 007?
     if(!allowZeroPad) {
-      while((digit = rand.nextInt(base)) == 0) {
+      while(digit == 0) {
+        digit = rand.nextInt(base);
       }
-      sb.append(Integer.toString(digit,base));
     }
     for(int i = 0; i < len; ++i) {
-      digit = rand.nextInt(base);
       sb.append(Integer.toString(digit,base));
+      digit = rand.nextInt(base);
     }
     return sb.toString();
   }
@@ -120,24 +123,24 @@ public class AllBigIntBaseTest {
           default: assertNull("Operation undefined: " + c,null);
         }
         
-        String mcs = ma.toString().toUpperCase();
+        String mas = ma.toString().toUpperCase();
         String bcs = bc.toString().toUpperCase();
         String as = a.toString(base).toUpperCase();
         String bs = b.toString(base).toUpperCase();
         String cs = c.toString(base).toUpperCase();
         
         msg.setLength(0);
-        msg.append("\n");
+        msg.append('\n');
         msg.append("MutBigIntBase:\n");
-        msg.append("\t" + as + " " + op + " " + mb + " = " + mcs + "\n");
+        msg.append('\t').append(as).append(' ').append(op).append(' ').append(mb).append(" = ").append(mas).append('\n');
         msg.append("BigIntBase:\n");
-        msg.append("\t" + ba + " " + op + " " + bb + " = " + bcs + "\n");
+        msg.append('\t').append(ba).append(' ').append(op).append(' ').append(bb).append(" = ").append(bcs).append('\n');
         msg.append("BigInteger:\n");
-        msg.append("\t" + as + " " + op + " " + bs + " = " + cs + "\n");
-        msg.append("\t" + a + " " + op + " " + b + " = " + c + "\n"); // Base 10 (decimal)
+        msg.append('\t').append(as).append(' ').append(op).append(' ').append(bs).append(" = ").append(cs).append('\n');
+        msg.append('\t').append(a).append(' ').append(op).append(' ').append(b).append(" = ").append(c).append('\n'); // Base 10 (decimal)
         String m = msg.toString();
         
-        assertEquals(m,mcs,cs);
+        assertEquals(m,mas,cs);
         assertEquals(m,bcs,cs);
       }
     }
