@@ -4,12 +4,14 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Scanner;
 
-// TODO: same cache and exceptions as MutBigIntBase
+// TODO: same cache as MutBigIntBase
 
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */
 public class BigIntBase {
+  private static final long serialVersionUID = 1L;
+  
   protected int base = 0;
   protected int[] digits = null;
   protected int sign = 0;
@@ -125,7 +127,7 @@ public class BigIntBase {
   
   public int compareTo(BigIntBase bib) {
     if(bib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign < bib.sign) {
       return -1;
@@ -169,7 +171,7 @@ public class BigIntBase {
   
   public BigIntBase minus(BigIntBase bib) {
     if(bib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
       return bib.negate();
@@ -255,7 +257,7 @@ public class BigIntBase {
   
   public BigIntBase plus(BigIntBase bib) {
     if(bib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
       return bib;
@@ -318,7 +320,7 @@ public class BigIntBase {
   
   public BigIntBase times(BigIntBase bib) {
     if(bib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0 || bib.sign == 0) {
       return new BigIntBase(base);
@@ -414,7 +416,7 @@ public class BigIntBase {
           c = a.rem(b);
           c10 = a10.remainder(b10);
           break;
-        default: throw new RuntimeException("Invalid operator.");
+        default: throw new UnsupportedOperationException("Invalid operator: " + operator);
       }
       
       System.out.println("BigIntBase:");

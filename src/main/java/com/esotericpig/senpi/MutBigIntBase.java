@@ -6,12 +6,13 @@ import java.util.Scanner;
 
 // TODO: create cache of most commonly used numbers, populate when used, per base
 // TODO: allow user to initialize the cache and/or add new numbers to it, per base
-// TODO: make better exceptions
 
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */
 public class MutBigIntBase {
+  private static final long serialVersionUID = 1L;
+  
   public static final int DEFAULT_BASE = 12;
 
   protected int base = 0;
@@ -64,7 +65,7 @@ public class MutBigIntBase {
     // Use Character.MIN_RADIX/MAX_RADIX instead?
     if(base < 2 || base > (Integer.MAX_VALUE / 2 + 1)) {
       // Unary not supported (because of 0 and 1s need to be tallies)
-      throw new RuntimeException("Base not supported.");
+      throw new UnsupportedBaseException("Unsupported base: " + base);
     }
     
     this.base = base;
@@ -81,7 +82,7 @@ public class MutBigIntBase {
           this.sign = (c == '-') ? -1 : 1;
         }
         else {
-          throw new RuntimeException("Invalid extra sign character(s).");
+          throw new InvalidSignException("Invalid extra sign character(s)");
         }
       }
       else if(!Character.isWhitespace(c)) {
@@ -149,7 +150,7 @@ public class MutBigIntBase {
           d = c - 'A' + 10;
         }
         if(d < 0 || d >= base) {
-          throw new RuntimeException("Invalid digit.");
+          throw new InvalidDigitException("Invalid digit: " + d);
         }
         
         this.digits[i++] = d;
@@ -254,7 +255,7 @@ public class MutBigIntBase {
   
   public int compareTo(MutBigIntBase mbib) {
     if(mbib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign < mbib.sign) {
       return -1;
@@ -337,7 +338,7 @@ public class MutBigIntBase {
   
   public MutBigIntBase minus(MutBigIntBase mbib) {
     if(mbib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
       return set(mbib).negate();
@@ -432,10 +433,10 @@ public class MutBigIntBase {
   
   public MutBigIntBase[] overRem(MutBigIntBase mbib) {
     if(mbib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(mbib.sign == 0) {
-      throw new RuntimeException("Divide by zero.");
+      throw new DivideByZeroException("Divide by zero");
     }
     if(sign == 0) {
       return new MutBigIntBase[]{new MutBigIntBase(base),new MutBigIntBase(base)};
@@ -452,7 +453,7 @@ public class MutBigIntBase {
   
   public MutBigIntBase plus(MutBigIntBase mbib) {
     if(mbib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
       return set(mbib);
@@ -545,7 +546,7 @@ public class MutBigIntBase {
   
   public MutBigIntBase times(MutBigIntBase mbib) {
     if(mbib.base != base) {
-      throw new RuntimeException("Bases do not match.");
+      throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0 || mbib.sign == 0) {
       return zero();
@@ -649,7 +650,7 @@ public class MutBigIntBase {
           a.rem(b);
           c10 = a10.remainder(b10);
           break;
-        default: throw new RuntimeException("Invalid operator.");
+        default: throw new UnsupportedOperationException("Invalid operator: " + operator);
       }
       
       System.out.println("MutBigIntBase:");
