@@ -110,7 +110,7 @@ public class AllBigIntBaseTest {
           case '/': ma.over(mb); bc = ba.over(bb); c = a.divide(b); break;
           case '%': ma.mod(mb); bc = ba.mod(bb); c = a.mod(b); break;
           case 'r': ma.rem(mb); bc = ba.rem(bb); c = a.remainder(b); break;
-          default: assertNull("Operation undefined: " + c,null);
+          default: assertNull("Operation undefined: " + op,null);
         }
         
         String mas = ma.toString().toUpperCase();
