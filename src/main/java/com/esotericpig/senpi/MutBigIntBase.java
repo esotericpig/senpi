@@ -221,9 +221,7 @@ public class MutBigIntBase {
   }
   
   public MutBigIntBase abs() {
-    if(sign == -1) {
-      sign = 1;
-    }
+    sign &= 1;
     return this;
   }
   
