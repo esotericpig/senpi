@@ -83,43 +83,33 @@ public class AllBigIntBaseTest {
         BigInteger b = new BigInteger(numStrB,base);
         BigInteger c = null;
         
+        if(op == '/' || op == '%' || op == 'r') {
+          if(b.signum() == 0) {
+            // Prevent divide by 0
+            mb = new MutBigIntBase("1",base);
+            bb = new BigIntBase("1",base);
+            b = new BigInteger("1",base);
+          }
+        }
+        if(op == '%') {
+          if(a.signum() == -1 || b.signum() == -1) {
+            // Both #s must be positive because of differences in BigInteger
+            ma.abs();
+            mb.abs();
+            ba = ba.abs();
+            bb = bb.abs();
+            a = a.abs();
+            b = b.abs();
+          }
+        }
+        
         switch(op) {
           case '+': ma.plus(mb); bc = ba.plus(bb); c = a.add(b); break;
           case '-': ma.minus(mb); bc = ba.minus(bb); c = a.subtract(b); break;
           case '*': ma.times(mb); bc = ba.times(bb); c = a.multiply(b); break;
-          case '/':
-            if(b.signum() == 0) {
-              mb = new MutBigIntBase("1",base);
-              bb = new BigIntBase("1",base);
-              b = new BigInteger("1",base);
-            }
-            ma.over(mb); bc = ba.over(bb); c = a.divide(b);
-            break;
-          case '%':
-            if(b.signum() == 0) {
-              mb = new MutBigIntBase("1",base);
-              bb = new BigIntBase("1",base);
-              b = new BigInteger("1",base);
-            }
-            if(a.signum() == -1 || b.signum() == -1) {
-              // Both #s must be positive because of differences in BigInteger
-              ma.abs();
-              mb.abs();
-              ba = ba.abs();
-              bb = bb.abs();
-              a = a.abs();
-              b = b.abs();
-            }
-            ma.mod(mb); bc = ba.mod(bb); c = a.mod(b);
-            break;
-          case 'r':
-            if(b.signum() == 0) {
-              mb = new MutBigIntBase("1",base);
-              bb = new BigIntBase("1",base);
-              b = new BigInteger("1",base);
-            }
-            ma.rem(mb); bc = ba.rem(bb); c = a.remainder(b);
-            break;
+          case '/': ma.over(mb); bc = ba.over(bb); c = a.divide(b); break;
+          case '%': ma.mod(mb); bc = ba.mod(bb); c = a.mod(b); break;
+          case 'r': ma.rem(mb); bc = ba.rem(bb); c = a.remainder(b); break;
           default: assertNull("Operation undefined: " + c,null);
         }
         
