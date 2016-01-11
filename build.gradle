@@ -8,7 +8,7 @@ description = 'pi base 12'
 ext.charset = 'UTF-8'
 ext.encoding = 'UTF-8'
 ext.locale = 'en_US'
-mainClassName = 'com.esotericpig.senpi.Senpi'
+mainClassName = "${group}.Senpi"
 
 javadoc.title = 'senpi'
 
