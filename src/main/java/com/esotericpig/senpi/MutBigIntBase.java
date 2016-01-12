@@ -1,5 +1,6 @@
 package com.esotericpig.senpi;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -10,7 +11,7 @@ import java.util.Scanner;
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */
-public class MutBigIntBase {
+public class MutBigIntBase implements Serializable {
   private static final long serialVersionUID = 1L;
   
   public static final int DEFAULT_BASE = 12;

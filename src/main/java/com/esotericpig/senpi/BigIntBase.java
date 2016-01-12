@@ -1,5 +1,6 @@
 package com.esotericpig.senpi;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */
-public class BigIntBase {
+public class BigIntBase implements Serializable {
   private static final long serialVersionUID = 1L;
   
   protected int base = 0;
