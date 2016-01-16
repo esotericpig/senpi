@@ -3,15 +3,16 @@ package com.esotericpig.senpi;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Scanner;
-
-// TODO: same cache as MutBigIntBase
 
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */
 public class BigIntBase implements Serializable {
   private static final long serialVersionUID = 1L;
+  
+  protected static final HashMap<Integer,Cache> caches = new HashMap<Integer,Cache>();
   
   protected int base = 0;
   protected int[] digits = null;
@@ -333,12 +334,44 @@ public class BigIntBase implements Serializable {
     return base;
   }
   
+  public Cache getCache() {
+    return getCache(base);
+  }
+  
+  public BigIntBase getCache(String s) {
+    return getCache(base,s);
+  }
+  
+  public BigIntBase getCache10(int i) {
+    return getCache10(base,i);
+  }
+  
+  public static Cache getCache(int base) {
+    Cache result = caches.get(base);
+    if(result == null) {
+      caches.put(base,result = new Cache(base));
+    }
+    return result;
+  }
+  
+  public static BigIntBase getCache(int base,String s) {
+    return getCache(base).getCustom(s);
+  }
+  
+  public static BigIntBase getCache10(int base,int i) {
+    return getCache(base).getCustom10(i);
+  }
+  
   public int getSign() {
     return sign;
   }
   
   public boolean isZero() {
     return sign == 0;
+  }
+  
+  public MutBigIntBase toMut() {
+    return new MutBigIntBase(this);
   }
   
   public String toString() {
@@ -425,6 +458,35 @@ public class BigIntBase implements Serializable {
       System.out.println("BigInteger:");
       System.out.println("\t" + a10.toString(base) + " " + operator + " " + b10.toString(base) + " = " + c10.toString(base));
       System.out.println("\t" + a10 + " " + operator + " " + b10 + " = " + c10);
+    }
+  }
+  
+  public static class Cache {
+    public final int BASE;
+    public final HashMap<String,BigIntBase> custom = new HashMap<String,BigIntBase>();
+    public final BigIntBase ZERO;
+    public final BigIntBase ONE;
+    public final BigIntBase TWO;
+    public final BigIntBase TEN;
+    
+    public Cache(int base) {
+      BASE = base;
+      ZERO = new BigIntBase(base);
+      ONE = new BigIntBase("1",base);
+      TWO = new BigIntBase(Integer.toString(2,base),base);
+      TEN = new BigIntBase(Integer.toString(10,base),base);
+    }
+    
+    public BigIntBase getCustom(String s) {
+      BigIntBase result = custom.get(s);
+      if(result == null) {
+        custom.put(s,result = new BigIntBase(s,BASE));
+      }
+      return result;
+    }
+    
+    public BigIntBase getCustom10(int i) {
+      return getCustom(Integer.toString(i,BASE));
     }
   }
 }

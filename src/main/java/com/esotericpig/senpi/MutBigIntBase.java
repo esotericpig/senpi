@@ -5,9 +5,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Scanner;
 
-// TODO: create cache of most commonly used numbers, populate when used, per base
-// TODO: allow user to initialize the cache and/or add new numbers to it, per base
-
 /**
  * @author Jonathan Bradley Whited, @esotericpig
  */

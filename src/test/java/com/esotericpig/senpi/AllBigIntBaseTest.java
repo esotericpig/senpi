@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Jonathan Bradley Whited, @esotericpig
@@ -20,7 +20,8 @@ public class AllBigIntBaseTest {
   public void setUp() {
     rand = new Random();
   }
-
+  
+  // TODO: maybe put this in MutBigIntBase? because could be useful elsewhere
   public static String createRandNumStr(int base,int minLen,int maxLen,boolean allowZeroPad,Random rand) {
     if(base < 2) {
       // Avoid infinite loop at !allowZeroPad
@@ -33,11 +34,11 @@ public class AllBigIntBaseTest {
     
     // -#? (-0 is allowed)
     if(rand.nextBoolean()) {
-      sb.append("-");
+      sb.append('-');
     }
     // Add "+" or not for +#? (+0 is allowed)
     else if(rand.nextBoolean()) {
-      sb.append("+");
+      sb.append('+');
     }
     
     digit = rand.nextInt(base);
@@ -54,9 +55,32 @@ public class AllBigIntBaseTest {
     }
     return sb.toString();
   }
-
+  
   @Test
-  public void testAll() {
+  public void testCache() {
+    final int base = 12;
+    
+    BigIntBase b = new BigIntBase(base);
+    
+    testCache("ZERO",b.getCache().ZERO,new BigIntBase("0",base));
+    testCache("ONE",b.getCache().ONE,new BigIntBase("1",base));
+    testCache("TWO",b.getCache().TWO,new BigIntBase(Integer.toString(2,base),base));
+    testCache("TEN",b.getCache().TEN,new BigIntBase(Integer.toString(10,base),base));
+    testCache("BB",b.getCache("bb"),new BigIntBase("bb",base));
+    testCache("100b10",b.getCache10(100),new BigIntBase(Integer.toString(100,base),base));
+  }
+  
+  public void testCache(String name,BigIntBase cacheVal,BigIntBase testVal) {
+    assertNotNull("Null cache: " + name,cacheVal);
+    
+    String cvs = cacheVal.toString();
+    String tvs = testVal.toString();
+    
+    assertEquals("Bad cache: " + name + ": " + cvs + " != " + tvs,cvs,tvs);
+  }
+  
+  @Test
+  public void testOps() {
     // Currently, only tests:
     //   - +, -, *, /, % (modulus), r (remainder)
     //   - Base 12
@@ -86,9 +110,9 @@ public class AllBigIntBaseTest {
         if(op == '/' || op == '%' || op == 'r') {
           if(b.signum() == 0) {
             // Prevent divide by 0
-            mb = new MutBigIntBase("1",base);
-            bb = new BigIntBase("1",base);
-            b = new BigInteger("1",base);
+            mb = bb.getCache().ONE.toMut();
+            bb = bb.getCache().ONE;
+            b = BigInteger.ONE;
           }
         }
         if(op == '%') {
@@ -110,7 +134,7 @@ public class AllBigIntBaseTest {
           case '/': ma.over(mb); bc = ba.over(bb); c = a.divide(b); break;
           case '%': ma.mod(mb); bc = ba.mod(bb); c = a.mod(b); break;
           case 'r': ma.rem(mb); bc = ba.rem(bb); c = a.remainder(b); break;
-          default: assertNull("Operation undefined: " + op,null);
+          default: assertNotNull("Operation undefined: " + op,null);
         }
         
         String mas = ma.toString().toUpperCase();
