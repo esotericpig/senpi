@@ -110,7 +110,7 @@ public class AllBigIntBaseTest {
         if(op == '/' || op == '%' || op == 'r') {
           if(b.signum() == 0) {
             // Prevent divide by 0
-            mb = bb.c().ONE.toMut();
+            mb = bb.c().ONE.m();
             bb = bb.c().ONE;
             b = BigInteger.ONE;
           }

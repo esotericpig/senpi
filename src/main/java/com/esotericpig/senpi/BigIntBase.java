@@ -370,6 +370,10 @@ public class BigIntBase implements Serializable {
     return sign == 0;
   }
   
+  public MutBigIntBase m() {
+    return toMut();
+  }
+  
   public MutBigIntBase toMut() {
     return new MutBigIntBase(this);
   }
