@@ -2,7 +2,7 @@
 apply plugin: 'application'
 
 group = 'com.esotericpig.senpi'
-version = '0.1'
+version = '0.5'
 description = 'pi base 12'
 
 ext.charset = 'UTF-8'
