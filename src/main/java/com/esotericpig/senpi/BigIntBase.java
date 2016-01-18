@@ -334,19 +334,19 @@ public class BigIntBase implements Serializable {
     return base;
   }
   
-  public Cache getCache() {
-    return getCache(base);
+  public Cache c() {
+    return c(base);
   }
   
-  public BigIntBase getCache(String s) {
-    return getCache(base,s);
+  public BigIntBase c(String s) {
+    return c(base,s);
   }
   
-  public BigIntBase getCache10(int i) {
-    return getCache10(base,i);
+  public BigIntBase c10(int i) {
+    return c10(base,i);
   }
   
-  public static Cache getCache(int base) {
+  public static Cache c(int base) {
     Cache result = caches.get(base);
     if(result == null) {
       caches.put(base,result = new Cache(base));
@@ -354,12 +354,12 @@ public class BigIntBase implements Serializable {
     return result;
   }
   
-  public static BigIntBase getCache(int base,String s) {
-    return getCache(base).getCustom(s);
+  public static BigIntBase c(int base,String s) {
+    return c(base).getCustom(s);
   }
   
-  public static BigIntBase getCache10(int base,int i) {
-    return getCache(base).getCustom10(i);
+  public static BigIntBase c10(int base,int i) {
+    return c(base).getCustom10(i);
   }
   
   public int getSign() {

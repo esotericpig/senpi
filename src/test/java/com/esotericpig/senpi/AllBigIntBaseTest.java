@@ -62,12 +62,12 @@ public class AllBigIntBaseTest {
     
     BigIntBase b = new BigIntBase(base);
     
-    testCache("ZERO",b.getCache().ZERO,new BigIntBase("0",base));
-    testCache("ONE",b.getCache().ONE,new BigIntBase("1",base));
-    testCache("TWO",b.getCache().TWO,new BigIntBase(Integer.toString(2,base),base));
-    testCache("TEN",b.getCache().TEN,new BigIntBase(Integer.toString(10,base),base));
-    testCache("BB",b.getCache("bb"),new BigIntBase("bb",base));
-    testCache("100b10",b.getCache10(100),new BigIntBase(Integer.toString(100,base),base));
+    testCache("ZERO",b.c().ZERO,new BigIntBase("0",base));
+    testCache("ONE",b.c().ONE,new BigIntBase("1",base));
+    testCache("TWO",b.c().TWO,new BigIntBase(Integer.toString(2,base),base));
+    testCache("TEN",b.c().TEN,new BigIntBase(Integer.toString(10,base),base));
+    testCache("BB",b.c("bb"),new BigIntBase("bb",base));
+    testCache("100b10",b.c10(100),new BigIntBase(Integer.toString(100,base),base));
   }
   
   public void testCache(String name,BigIntBase cacheVal,BigIntBase testVal) {
@@ -110,8 +110,8 @@ public class AllBigIntBaseTest {
         if(op == '/' || op == '%' || op == 'r') {
           if(b.signum() == 0) {
             // Prevent divide by 0
-            mb = bb.getCache().ONE.toMut();
-            bb = bb.getCache().ONE;
+            mb = bb.c().ONE.toMut();
+            bb = bb.c().ONE;
             b = BigInteger.ONE;
           }
         }
