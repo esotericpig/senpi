@@ -21,41 +21,6 @@ public class AllBigIntBaseTest {
     rand = new Random();
   }
   
-  // TODO: maybe put this in MutBigIntBase? because could be useful elsewhere
-  public static String createRandNumStr(int base,int minLen,int maxLen,boolean allowZeroPad,Random rand) {
-    if(base < 2) {
-      // Avoid infinite loop at !allowZeroPad
-      throw new UnsupportedBaseException("Unsupported base: " + base);
-    }
-  
-    int digit = 0;
-    int len = minLen + rand.nextInt(maxLen);
-    StringBuilder sb = new StringBuilder(len);
-    
-    // -#? (-0 is allowed)
-    if(rand.nextBoolean()) {
-      sb.append('-');
-    }
-    // Add "+" or not for +#? (+0 is allowed)
-    else if(rand.nextBoolean()) {
-      sb.append('+');
-    }
-    
-    digit = rand.nextInt(base);
-    
-    // 007?
-    if(!allowZeroPad) {
-      while(digit == 0) {
-        digit = rand.nextInt(base);
-      }
-    }
-    for(int i = 0; i < len; ++i) {
-      sb.append(Integer.toString(digit,base));
-      digit = rand.nextInt(base);
-    }
-    return sb.toString();
-  }
-  
   @Test
   public void testCache() {
     final int base = 12;
@@ -65,7 +30,16 @@ public class AllBigIntBaseTest {
     testCache("ZERO",b.c().ZERO,new BigIntBase("0",base));
     testCache("ONE",b.c().ONE,new BigIntBase("1",base));
     testCache("TWO",b.c().TWO,new BigIntBase(Integer.toString(2,base),base));
+    testCache("THREE",b.c().THREE,new BigIntBase(Integer.toString(3,base),base));
+    testCache("FOUR",b.c().FOUR,new BigIntBase(Integer.toString(4,base),base));
+    testCache("FIVE",b.c().FIVE,new BigIntBase(Integer.toString(5,base),base));
+    testCache("SIX",b.c().SIX,new BigIntBase(Integer.toString(6,base),base));
+    testCache("SEVEN",b.c().SEVEN,new BigIntBase(Integer.toString(7,base),base));
+    testCache("EIGHT",b.c().EIGHT,new BigIntBase(Integer.toString(8,base),base));
+    testCache("NINE",b.c().NINE,new BigIntBase(Integer.toString(9,base),base));
     testCache("TEN",b.c().TEN,new BigIntBase(Integer.toString(10,base),base));
+    testCache("ELEVEN",b.c().ELEVEN,new BigIntBase(Integer.toString(11,base),base));
+    testCache("TWELVE",b.c().TWELVE,new BigIntBase(Integer.toString(12,base),base));
     testCache("BB",b.c("bb"),new BigIntBase("bb",base));
     testCache("100b10",b.c10(100),new BigIntBase(Integer.toString(100,base),base));
   }
@@ -93,8 +67,8 @@ public class AllBigIntBaseTest {
     
     for(char op: ops) {
       for(int t = 0; t < TEST_COUNT; ++t) {
-        String numStrA = createRandNumStr(base,1,100,rand.nextBoolean(),rand);
-        String numStrB = createRandNumStr(base,1,100,rand.nextBoolean(),rand);
+        String numStrA = MutBigIntBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
+        String numStrB = MutBigIntBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
         
         MutBigIntBase ma = new MutBigIntBase(numStrA,base);
         MutBigIntBase mb = new MutBigIntBase(numStrB,base);

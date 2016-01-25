@@ -3,6 +3,7 @@ package com.esotericpig.senpi;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -467,6 +468,55 @@ public class MutBigIntBase implements Serializable {
       return subtract(this,mbib,comparison);
     }
     return add(this,mbib);
+  }
+  
+  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos) {
+    return randNumStr(base,minLen,maxLen,isPos,false,new Random());
+  }
+  
+  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos,boolean allowZeroPad,Random rand) {
+    if(base < 2) {
+      // Avoid infinite loop at !allowZeroPad
+      throw new UnsupportedBaseException("Unsupported base: " + base);
+    }
+    
+    // For min=0 and max=5: len = 0 + rand(6)[0-5]
+    // For min=2 and max=5: len = 2 + rand(4)[0-3]
+    // For min=5 and max=5; len = 5 + rand(1)[0]
+    maxLen = maxLen - minLen + 1;
+    int len = minLen + rand.nextInt(maxLen);
+    
+    if(len < 1) {
+      return "0";
+    }
+    
+    int digit = 0;
+    StringBuilder sb = new StringBuilder(len + 1); // +1 for (potential) sign
+    
+    if(isPos) {
+      // Add "+" or not for +#? (+0 is allowed)
+      if(rand.nextBoolean()) {
+        sb.append('+');
+      }
+    }
+    // -#? (-0 is allowed)
+    else {
+      sb.append('-');
+    }
+    
+    digit = rand.nextInt(base);
+    
+    // 007? (also, essentially, don't allow a 0#)
+    if(!allowZeroPad) {
+      while(digit == 0) {
+        digit = rand.nextInt(base);
+      }
+    }
+    for(int i = 0; i < len; ++i) {
+      sb.append(Integer.toString(digit,base));
+      digit = rand.nextInt(base);
+    }
+    return sb.toString();
   }
   
   public MutBigIntBase rem(MutBigIntBase mbib) {
