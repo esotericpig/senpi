@@ -495,14 +495,32 @@ public class BigIntBase implements Serializable {
     public final BigIntBase ZERO;
     public final BigIntBase ONE;
     public final BigIntBase TWO;
+    public final BigIntBase THREE;
+    public final BigIntBase FOUR;
+    public final BigIntBase FIVE;
+    public final BigIntBase SIX;
+    public final BigIntBase SEVEN;
+    public final BigIntBase EIGHT;
+    public final BigIntBase NINE;
     public final BigIntBase TEN;
+    public final BigIntBase ELEVEN;
+    public final BigIntBase TWELVE;
     
     public Cache(int base) {
       BASE = base;
       ZERO = new BigIntBase(base);
       ONE = new BigIntBase("1",base);
       TWO = new BigIntBase(Integer.toString(2,base),base);
+      THREE = new BigIntBase(Integer.toString(3,base),base);
+      FOUR = new BigIntBase(Integer.toString(4,base),base);
+      FIVE = new BigIntBase(Integer.toString(5,base),base);
+      SIX = new BigIntBase(Integer.toString(6,base),base);
+      SEVEN = new BigIntBase(Integer.toString(7,base),base);
+      EIGHT = new BigIntBase(Integer.toString(8,base),base);
+      NINE = new BigIntBase(Integer.toString(9,base),base);
       TEN = new BigIntBase(Integer.toString(10,base),base);
+      ELEVEN = new BigIntBase(Integer.toString(11,base),base);
+      TWELVE = new BigIntBase(Integer.toString(12,base),base);
     }
     
     public BigIntBase cu(String s) {
