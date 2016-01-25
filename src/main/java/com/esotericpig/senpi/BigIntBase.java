@@ -335,18 +335,34 @@ public class BigIntBase implements Serializable {
   }
   
   public Cache c() {
-    return c(base);
-  }
-  
-  public BigIntBase c(String s) {
-    return c(base,s);
-  }
-  
-  public BigIntBase c10(int i) {
-    return c10(base,i);
+    return getCache();
   }
   
   public static Cache c(int base) {
+    return getCache(base);
+  }
+  
+  public static BigIntBase c(int base,String s) {
+    return getCache(base,s);
+  }
+  
+  public BigIntBase c(String s) {
+    return getCache(s);
+  }
+  
+  public static BigIntBase c10(int base,int i) {
+    return getCache10(base,i);
+  }
+  
+  public BigIntBase c10(int i) {
+    return getCache10(i);
+  }
+  
+  public Cache getCache() {
+    return getCache(base);
+  }
+  
+  public static Cache getCache(int base) {
     Cache result = caches.get(base);
     if(result == null) {
       caches.put(base,result = new Cache(base));
@@ -354,12 +370,20 @@ public class BigIntBase implements Serializable {
     return result;
   }
   
-  public static BigIntBase c(int base,String s) {
-    return c(base).getCustom(s);
+  public static BigIntBase getCache(int base,String s) {
+    return getCache(base).getCustom(s);
   }
   
-  public static BigIntBase c10(int base,int i) {
-    return c(base).getCustom10(i);
+  public BigIntBase getCache(String s) {
+    return getCache(base,s);
+  }
+  
+  public static BigIntBase getCache10(int base,int i) {
+    return getCache(base).getCustom10(i);
+  }
+  
+  public BigIntBase getCache10(int i) {
+    return getCache10(base,i);
   }
   
   public int getSign() {
@@ -479,6 +503,14 @@ public class BigIntBase implements Serializable {
       ONE = new BigIntBase("1",base);
       TWO = new BigIntBase(Integer.toString(2,base),base);
       TEN = new BigIntBase(Integer.toString(10,base),base);
+    }
+    
+    public BigIntBase cu(String s) {
+      return getCustom(s);
+    }
+    
+    public BigIntBase cu10(int i) {
+      return getCustom10(i);
     }
     
     public BigIntBase getCustom(String s) {
