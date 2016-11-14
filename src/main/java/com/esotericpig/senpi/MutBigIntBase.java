@@ -63,7 +63,7 @@ public class MutBigIntBase implements Serializable {
   public MutBigIntBase(String s,int base,boolean truncZero) {
     // Use Character.MIN_RADIX/MAX_RADIX instead?
     if(base < 2 || base > (Integer.MAX_VALUE / 2 + 1)) {
-      // Unary not supported (because of 0 and 1s need to be tallies)
+      // Unary not supported (because of 0, and 1s need to be tallies)
       throw new UnsupportedBaseException("Unsupported base: " + base);
     }
     
@@ -118,7 +118,7 @@ public class MutBigIntBase implements Serializable {
       this.sign = 0; // In case of "-0" or "+0" (which is allowed)
       
       // 000
-      if(!truncZero) {
+      if(hasZero && !truncZero) {
         this.length = 1;
         this.offset = this.digits.length - 1;
       }
@@ -169,7 +169,7 @@ public class MutBigIntBase implements Serializable {
     final MutBigIntBase result = x;
     int[] rd = result.digits; // So that we don't overwrite x just yet
     
-    // Make top number (x) the longest (100 - 99)
+    // Make top number (x) the longest (100 + 99)
     if(x.length < y.length) {
       x = y;
       y = result;
@@ -482,7 +482,7 @@ public class MutBigIntBase implements Serializable {
     
     // For min=0 and max=5: len = 0 + rand(6)[0-5]
     // For min=2 and max=5: len = 2 + rand(4)[0-3]
-    // For min=5 and max=5; len = 5 + rand(1)[0]
+    // For min=5 and max=5: len = 5 + rand(1)[0]
     maxLen = maxLen - minLen + 1;
     int len = minLen + rand.nextInt(maxLen);
     
@@ -601,11 +601,19 @@ public class MutBigIntBase implements Serializable {
   }
   
   public MutBigIntBase zero() {
-    Arrays.fill(digits,0);
-    length = 1;
-    offset = digits.length - 1;
+    // For speed, commented this out, not going to worry about it
+    //Arrays.fill(digits,0);
     sign = 0;
     
+    if(digits.length > 0) {
+      offset = digits.length - 1;
+      digits[offset] = 0;
+      length = 1;
+    }
+    else {
+      length = 0;
+      offset = 0;
+    }
     return this;
   }
   
