@@ -56,6 +56,14 @@ public class BigIntBase implements Serializable {
     this.sign = mbib.sign;
   }
   
+  public BigIntBase(String s,int base,BigStrBase bsb) {
+    MutBigIntBase mbib = new MutBigIntBase(s,base,bsb);
+    
+    this.base = base;
+    this.digits = ltrim(mbib.digits); // Trim because no offset stored
+    this.sign = mbib.sign;
+  }
+  
   protected BigIntBase(int sign,int[] digits,int base) {
     this.base = base;
     this.digits = digits;

@@ -67,8 +67,8 @@ public class AllBigIntBaseTest {
     
     for(char op: ops) {
       for(int t = 0; t < TEST_COUNT; ++t) {
-        String numStrA = MutBigIntBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
-        String numStrB = MutBigIntBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
+        String numStrA = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
+        String numStrB = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
         
         MutBigIntBase ma = new MutBigIntBase(numStrA,base);
         MutBigIntBase mb = new MutBigIntBase(numStrB,base);

@@ -8,15 +8,13 @@ import java.io.Serializable;
 public class BigDecBase implements Serializable {
   private static final long serialVersionUID = 1L;
   
-  protected BigIntBase intVal;
-  protected int scale;
+  protected int scale = 0;
+  protected MutBigIntBase value = null;
   
-  protected BigDecBase(BigIntBase intVal,int scale) {
-    this.intVal = intVal;
-    this.scale = scale;
-  }
-  
-  public BigDecBase plus(BigDecBase bdb) {
-    return new BigDecBase(intVal.plus(bdb.intVal),scale);
+  protected BigDecBase(String s,int base) {
+    BigStrBase bsb = new BigStrBase(false,true);
+    
+    this.value = new MutBigIntBase(s,base,bsb);
+    this.scale = bsb.scale;
   }
 }
