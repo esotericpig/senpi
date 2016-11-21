@@ -2,6 +2,7 @@ package com.esotericpig.senpi;
 
 import java.util.Random;
 
+// TODO: randIntStr and randDecStr; remove randNumStr?
 /**
  * <pre>
  * 1) Parser for Integer/Decimal strings in user-specified bases.
@@ -20,8 +21,6 @@ public class BigStrBase {
   public int sign;
   
   public BigStrBase(boolean isTruncZero,boolean isDec) {
-    clear();
-    
     this.isDec = isDec;
     this.isTruncZero = isTruncZero;
   }
@@ -56,6 +55,9 @@ public class BigStrBase {
       if(c == '-' || c == '+') {
         if(this.sign == 0) {
           this.sign = (c == '-') ? -1 : 1;
+        }
+        else if(begIndex != -1 && !hasZero) {
+          throw new InvalidSignException("Invalid sign not before number");
         }
         else {
           throw new InvalidSignException("Invalid extra sign character(s)");
@@ -154,7 +156,7 @@ public class BigStrBase {
           d = c - 'A' + 10;
         }
         if(d < 0 || d >= base) {
-          throw new InvalidDigitException("Invalid digit: " + d);
+          throw new InvalidDigitException("Invalid digit outside of base: " + d);
         }
         
         this.digits[i++] = d;
