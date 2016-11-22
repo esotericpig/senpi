@@ -64,17 +64,17 @@ public class MutBigIntBase implements Serializable {
   }
   
   public MutBigIntBase(String s,int base,BigStrBase bsb) {
-    bsb.parse(s,base);
+    BigStrBase.ParsedData pd = bsb.parse(s,base);
     
     this.base = base;
-    this.digits = bsb.digits;
-    this.length = bsb.length;
-    this.offset = bsb.offset;
-    this.sign = bsb.sign;
+    this.digits = pd.digits;
+    this.length = pd.length;
+    this.offset = pd.offset;
+    this.sign = pd.sign;
   }
   
-  public MutBigIntBase(String s,int base,boolean isTruncZero) {
-    this(s,base,new BigStrBase(isTruncZero,false));
+  public MutBigIntBase(String s,int base,boolean shouldTruncZero) {
+    this(s,base,new BigStrBase(shouldTruncZero,false));
   }
   
   protected MutBigIntBase(int sign,int[] digits,int base,int offset,int length) {

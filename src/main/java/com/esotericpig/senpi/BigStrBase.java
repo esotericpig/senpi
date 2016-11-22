@@ -1,8 +1,8 @@
 package com.esotericpig.senpi;
 
+import java.io.Serializable;
 import java.util.Random;
 
-// TODO: randIntStr and randDecStr; remove randNumStr?
 /**
  * <pre>
  * 1) Parser for Integer/Decimal strings in user-specified bases.
@@ -11,38 +11,27 @@ import java.util.Random;
  *
  * @author Jonathan Bradley Whited, @esotericpig
  */
-public class BigStrBase {
-  public int[] digits;
+public class BigStrBase implements Serializable {
+  private static final long serialVersionUID = 1L;
+  
   public boolean isDec;
-  public boolean isTruncZero;
-  public int length;
-  public int offset;
-  public int scale;
-  public int sign;
+  public boolean shouldTruncZero;
   
-  public BigStrBase(boolean isTruncZero,boolean isDec) {
+  public BigStrBase(boolean shouldTruncZero,boolean isDec) {
     this.isDec = isDec;
-    this.isTruncZero = isTruncZero;
+    this.shouldTruncZero = shouldTruncZero;
   }
   
-  public void clear() {
-    digits = null;
-    length = 0;
-    offset = 0;
-    scale = 0;
-    sign = 0;
-  }
-  
-  public void parse(String s,int base) {
-    clear();
-  
+  public ParsedData parse(String s,int base) {
     // Use Character.MIN_RADIX/MAX_RADIX instead?
     if(base < 2 || base > (Integer.MAX_VALUE / 2 + 1)) {
       // Unary not supported (because of 0, and 1s need to be tallies)
       throw new UnsupportedBaseException("Unsupported base: " + base);
     }
     
-    // Calculate this.digits.length (store in this.length)
+    ParsedData pd = new ParsedData();
+    
+    // Calculate digits.length (store in length)
     int begIndex = -1;
     boolean hasDot = false;
     boolean hasInt = true;
@@ -53,14 +42,14 @@ public class BigStrBase {
       char c = s.charAt(i);
       
       if(c == '-' || c == '+') {
-        if(this.sign == 0) {
-          this.sign = (c == '-') ? -1 : 1;
-        }
-        else if(begIndex != -1 && !hasZero) {
-          throw new InvalidSignException("Invalid sign not before number");
+        if(pd.sign == 0) {
+          pd.sign = (c == '-') ? -1 : 1;
         }
         else {
-          throw new InvalidSignException("Invalid extra sign character(s)");
+          throw new InvalidSignException("Invalid extra sign(s)");
+        }
+        if(begIndex != -1 && !hasZero) {
+          throw new InvalidSignException("Invalid sign after digit(s)");
         }
       }
       else if(isDec && c == '.') {
@@ -71,39 +60,39 @@ public class BigStrBase {
         if(begIndex == -1) {
           begIndex = i;
           hasInt = false;
-          ++this.length; // Add a 0 in place of dot
+          ++pd.length; // Add a 0 in place of dot
         }
         hasDot = true;
       }
       else if(!Character.isWhitespace(c)) {
         if(c == '0') {
           if(hasDot) {
-            ++this.length;
-            ++this.scale;
+            ++pd.length;
+            ++pd.scale;
           }
           else {
             hasZero = true;
             
             // 1000
             if(begIndex != -1) {
-              ++this.length;
+              ++pd.length;
             }
             // 007
-            else if(!isTruncZero) {
-              ++this.length;
-              ++this.offset;
+            else if(!shouldTruncZero) {
+              ++pd.length;
+              ++pd.offset;
             }
           }
         }
         else {
           if(hasDot) {
             hasNonZeroAfterDot = true;
-            ++this.scale;
+            ++pd.scale;
           }
           else if(begIndex == -1) {
             begIndex = i; // Found first non-zero digit (before dot)
           }
-          ++this.length;
+          ++pd.length;
         }
       }
     }
@@ -111,38 +100,38 @@ public class BigStrBase {
     // Zero
     if((begIndex == -1 || !hasInt) && !hasNonZeroAfterDot) {
       // Don't allow size of 0
-      if(this.length == 0) {
-        this.length = 1;
+      if(pd.length == 0) {
+        pd.length = 1;
       }
       
-      this.digits = new int[this.length];
-      this.sign = 0; // In case of "-0" or "+0" (which is allowed)
+      pd.digits = new int[pd.length];
+      pd.sign = 0; // In case of "-0" or "+0" (which is allowed)
       
       // 000
-      if(hasZero && !isTruncZero) {
-        this.length = 1;
-        this.offset = this.digits.length - this.scale - 1;
+      if(hasZero && !shouldTruncZero) {
+        pd.length = 1;
+        pd.offset = pd.digits.length - pd.scale - 1;
       }
-      return;
+      return pd;
     }
     
     // Convert s to digits
-    this.digits = new int[this.length];
+    pd.digits = new int[pd.length];
     
-    if(!isTruncZero) {
-      this.length -= this.offset; // Change len from 007 to match 7
+    if(!shouldTruncZero) {
+      pd.length -= pd.offset; // Change len from 007 to match 7
     }
-    if(this.sign == 0) {
-      this.sign = 1; // Default to +#
+    if(pd.sign == 0) {
+      pd.sign = 1; // Default to +#
     }
     
-    for(int i = this.offset; begIndex < s.length(); ++begIndex) {
+    for(int i = pd.offset; begIndex < s.length(); ++begIndex) {
       char c = s.charAt(begIndex);
       
       if(isDec && c == '.') {
         // .007 (instead of 0.007)
         if(!hasInt) {
-          this.digits[i++] = 0; // Add 0 in place of dot to make 0.007
+          pd.digits[i++] = 0; // Add 0 in place of dot to make 0.007
         }
       }
       else if(!Character.isWhitespace(c)) {
@@ -159,16 +148,18 @@ public class BigStrBase {
           throw new InvalidDigitException("Invalid digit outside of base: " + d);
         }
         
-        this.digits[i++] = d;
+        pd.digits[i++] = d;
       }
     }
+    return pd;
   }
   
-  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos) {
-    return randNumStr(base,minLen,maxLen,isPos,false,new Random());
+  public static String randNumStr(int base,int minLen,int maxLen) {
+    Random rand = new Random();
+    return randNumStr(base,minLen,maxLen,rand.nextBoolean(),rand.nextBoolean(),rand.nextBoolean(),rand);
   }
   
-  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos,boolean allowZeroPad,Random rand) {
+  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos,boolean allowZeroPad,boolean isDec,Random rand) {
     if(base < 2) {
       // Avoid infinite loop at !allowZeroPad
       throw new UnsupportedBaseException("Unsupported base: " + base);
@@ -185,7 +176,7 @@ public class BigStrBase {
     }
     
     int digit = 0;
-    StringBuilder sb = new StringBuilder(len + 1); // +1 for (potential) sign
+    StringBuilder sb = new StringBuilder(len + 2); // +1 for (potential) sign/dot
     
     if(isPos) {
       // Add "+" or not for +#? (+0 is allowed)
@@ -206,10 +197,26 @@ public class BigStrBase {
         digit = rand.nextInt(base);
       }
     }
+    
+    int dotIndex = isDec ? rand.nextInt(len) : -1;
+    
     for(int i = 0; i < len; ++i) {
+      if(i == dotIndex) {
+        sb.append('.');
+      }
       sb.append(Integer.toString(digit,base));
       digit = rand.nextInt(base);
     }
     return sb.toString();
+  }
+  
+  public static class ParsedData implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
+    public int[] digits = null;
+    public int length = 0;
+    public int offset = 0;
+    public int scale = 0;
+    public int sign = 0;
   }
 }

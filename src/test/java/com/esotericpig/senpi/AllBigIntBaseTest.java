@@ -49,8 +49,10 @@ public class AllBigIntBaseTest {
     
     String cvs = cacheVal.toString();
     String tvs = testVal.toString();
+    String m = "Cache: " + name + ": " + cvs + " =? " + tvs;
     
-    assertEquals("Bad cache: " + name + ": " + cvs + " != " + tvs,cvs,tvs);
+    System.out.println(m);    
+    assertEquals(m,cvs,tvs);
   }
   
   @Test
@@ -67,8 +69,8 @@ public class AllBigIntBaseTest {
     
     for(char op: ops) {
       for(int t = 0; t < TEST_COUNT; ++t) {
-        String numStrA = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
-        String numStrB = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),rand.nextBoolean(),rand);
+        String numStrA = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),true,false,rand);
+        String numStrB = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),true,false,rand);
         
         MutBigIntBase ma = new MutBigIntBase(numStrA,base);
         MutBigIntBase mb = new MutBigIntBase(numStrB,base);
@@ -128,6 +130,7 @@ public class AllBigIntBaseTest {
         msg.append('\t').append(a).append(' ').append(op).append(' ').append(b).append(" = ").append(c).append('\n'); // Base 10 (decimal)
         String m = msg.toString();
         
+        System.out.println(m);
         assertEquals(m,mas,cs);
         assertEquals(m,bcs,cs);
       }
