@@ -176,7 +176,7 @@ public class BigStrBase implements Serializable {
     }
     
     int digit = 0;
-    StringBuilder sb = new StringBuilder(len + 2); // +1 for (potential) sign/dot
+    StringBuilder sb = new StringBuilder(len + 2); // +2 for (potential) sign/dot
     
     if(isPos) {
       // Add "+" or not for +#? (+0 is allowed)
