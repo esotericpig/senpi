@@ -24,20 +24,21 @@ public class AllBigDecBaseTest {
     final int base = 12;
     
     StringBuilder msg = new StringBuilder();
-    String spatt = "^(\\-?)(\\+?0*)"; // Ignore padded 0s for comparison
+    String spatt = "^(\\-?)(\\+?0*)"; // Ignore padded 0s and plus sign for comparison
     
     for(int i = 0; i < TEST_COUNT; ++i) {
       String s = BigStrBase.randNumStr(base,1,100,rand.nextBoolean(),true,true,rand);
       BigDecBase bda = new BigDecBase(s,base);
       String bdas = bda.toString();
       
-      System.out.println(s + " ~? " + bdas);
+      msg.setLength(0);
+      msg.append(s).append(" ~? ").append(bdas).append('\n');
       
+      // $1 to keep negative sign
       s = s.replaceAll(spatt,"$1").toUpperCase();
       bdas = bdas.replaceAll(spatt,"$1"); // Only for 0.~ really
       
-      msg.setLength(0);
-      msg.append(s).append(" =? ").append(bdas);
+      msg.append(s).append(" =? ").append(bdas).append('\n');
       String m = msg.toString();
       
       System.out.println(m);
