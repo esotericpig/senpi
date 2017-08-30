@@ -154,8 +154,8 @@ public class BigIntBase implements Serializable {
   public static int[] grow(int[] x,int lengthToAdd) {
     int[] result = new int[x.length + lengthToAdd];
 
-    for(int i = 1; i < result.length; ++i) {
-      result[i] = x[i - 1];
+    for(int i = lengthToAdd; i < result.length; ++i) {
+      result[i] = x[i - lengthToAdd];
     }
     return result;
   }
