@@ -6,7 +6,7 @@ The idea was taken from Kryon channelings by channeler Lee Carroll.
 The "senpi" name comes from seeing a funny "Notice me, Senpai" meme with the pi symbol.
 
 ## setup
-This project uses Gradle for the build process (this is actually my first non-Android project using Gradle, so it might be a little rough around the edges; I appreciate any constructive feedback).  If you already have Gradle installed, ignore this section.
+This project uses Gradle for the build process.  If you already have Gradle installed, ignore this section.
 
 Graddle Wrapper is included so that you don't have to install Gradle.  Simply run one of the following commands:
 - **./gradlew** (Unix-like systems: Linux and Mac OS X)
@@ -16,7 +16,7 @@ Graddle Wrapper is included so that you don't have to install Gradle.  Simply ru
 
 Make sure that you have Java installed (with potentially **JAVA_HOME** set correctly).
 
-You can also move **gradle-wrapper.jar** and **gradle-wrapper.properties** from **./gradle/wrapper** to the top directory and simply run them with the following command if you wish:
+Instead, you can also move **gradle-wrapper.jar** and **gradle-wrapper.properties** from **./gradle/wrapper** to the top directory and simply run them with the following command if you wish:
 - **java -jar ./gradle-wrapper.jar**
 
 For safety, **distributionSha256Sum** has been added to **gradle-wrapper.properties**.
