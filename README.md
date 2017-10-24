@@ -33,20 +33,18 @@ If you used Gradle Wrapper, any downloaded files will be stored in **$USER_HOME/
 - **gradle jar**
 
 ## license
-<pre>
-senpi <https://github.com/esotericpig/senpi>
-Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+senpi (https://github.com/esotericpig/senpi)  
+Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)  
 
-senpi is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+senpi is free software: you can redistribute it and/or modify  
+it under the terms of the GNU General Public License as published by  
+the Free Software Foundation, either version 3 of the License, or  
+(at your option) any later version.  
 
-senpi is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+senpi is distributed in the hope that it will be useful,  
+but WITHOUT ANY WARRANTY; without even the implied warranty of  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the  
+GNU General Public License for more details.  
 
-You should have received a copy of the GNU General Public License
-along with senpi.  If not, see <http://www.gnu.org/licenses/>.
-</pre>
+You should have received a copy of the GNU General Public License  
+along with senpi.  If not, see <http://www.gnu.org/licenses/>.  
