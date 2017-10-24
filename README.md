@@ -33,6 +33,7 @@ If you used Gradle Wrapper, any downloaded files will be stored in **$USER_HOME/
 - **gradle jar**
 
 ## license
+<pre>
 senpi <https://github.com/esotericpig/senpi>
 Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
 
@@ -48,3 +49,4 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with senpi.  If not, see <http://www.gnu.org/licenses/>.
+</pre>
