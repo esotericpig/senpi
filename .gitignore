@@ -1,6 +1,6 @@
-.gradle
-build
+/.gradle/
+/build/
 *.class
 *.jar
 hs_err_pid*
-stock
+/stock/
