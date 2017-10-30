@@ -26,14 +26,17 @@ package com.esotericpig.senpi;
  */
 public class Senpi {
   public static void main(String[] args) {
-    //BigIntBase.main(args);
+    BigIntBase.main(args);
     
     //123.456
     //BigDecBase a = new BigDecBase("000000123AB.456AB",12);
     //System.out.println(a);
-    
+    /*
     BigDecBase a = new BigDecBase("1A.1A");
     BigDecBase b = new BigDecBase("1B.1B");
+    System.out.println(a);
+    System.out.println(b);
     System.out.println(a.plus(b));
+    */
   }
 }

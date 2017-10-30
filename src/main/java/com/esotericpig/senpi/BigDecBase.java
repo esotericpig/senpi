@@ -19,6 +19,7 @@
 package com.esotericpig.senpi;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
 
 // TODO: plus, minus, times, over
 // TODO: abs, compareTo, negate
@@ -31,41 +32,59 @@ public class BigDecBase implements Serializable {
   private static final long serialVersionUID = 1L;
   
   protected int scale = 0;
-  protected MutBigIntBase value = null;
+  protected BigIntBase value = null;
   
   public BigDecBase(BigDecBase bdb) {
     this.scale = bdb.scale;
-    this.value = new MutBigIntBase(bdb.value);
+    this.value = bdb.value;
   }
   
   public BigDecBase(String s) {
-    this(s,MutBigIntBase.DEFAULT_BASE);
+    this(s,BigStrBase.DEFAULT_BASE);
   }
   
   public BigDecBase(String s,int base) {
-    this(s,base,new BigStrBase(false,true));
+    this(s,base,new BigStrBase(true,true));
   }
   
   public BigDecBase(String s,int base,BigStrBase bsb) {
     BigStrBase.ParsedData pd = bsb.parse(s,base);
     
     this.scale = pd.scale;
-    this.value = new MutBigIntBase(pd.sign,pd.digits,base,pd.offset,pd.length);
+    this.value = new BigIntBase(new MutBigIntBase(pd.sign,pd.digits,base,pd.offset,pd.length));
+  }
+  
+  protected BigDecBase(BigIntBase value,int scale) {
+    this.scale = scale;
+    this.value = value;
   }
   
   public BigDecBase plus(BigDecBase bdb) {
     return null;
   }
   
-  public String toString() {
-    int dotIndex = value.digits.length - scale;
-    StringBuilder sb = new StringBuilder(value.length + 2); // +2 for (potential) sign/dot
+  public BigDecBase scale(int newScale,RoundingMode mode) {
+    if(newScale == scale) {
+      return this;
+    }
     
-    if(value.sign < 0) {
+    // TODO: if(value.getSign() == 0) { return new BigDecBase(0,newScale); /*or zero(newScale);*/ }
+    
+    if(newScale > scale) {
+    }
+    
+    return null;
+  }
+  
+  public String toString() {
+    int dotIndex = value.getSize() - scale;
+    StringBuilder sb = new StringBuilder(value.getLength() + 2); // +2 for (potential) sign/dot
+    
+    if(value.getSign() < 0) {
       sb.append('-');
     }
-    for(int i = value.offset; i < value.digits.length; ++i) {
-      int d = value.digits[i];
+    for(int i = value.getOffset(); i < value.getSize(); ++i) {
+      int d = value.getDigit(i);
       
       if(i == dotIndex) {
         sb.append('.');

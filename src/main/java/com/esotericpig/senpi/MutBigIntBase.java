@@ -32,8 +32,6 @@ import java.util.Scanner;
  */
 public class MutBigIntBase implements Serializable {
   private static final long serialVersionUID = 1L;
-  
-  public static final int DEFAULT_BASE = 12;
 
   protected int base = 0;
   protected int[] digits = null;
@@ -42,7 +40,7 @@ public class MutBigIntBase implements Serializable {
   protected int sign = 0;
   
   public MutBigIntBase() {
-    this(DEFAULT_BASE);
+    this(BigStrBase.DEFAULT_BASE);
   }
   
   public MutBigIntBase(int base) {
@@ -74,7 +72,7 @@ public class MutBigIntBase implements Serializable {
   }
   
   public MutBigIntBase(String s) {
-    this(s,DEFAULT_BASE);
+    this(s,BigStrBase.DEFAULT_BASE);
   }
   
   public MutBigIntBase(String s,int base) {
@@ -510,8 +508,24 @@ public class MutBigIntBase implements Serializable {
     return base;
   }
   
+  public int getDigit(int i) {
+    return digits[i];
+  }
+  
+  public int getLength() {
+    return length;
+  }
+  
+  public int getOffset() {
+    return offset;
+  }
+  
   public int getSign() {
     return sign;
+  }
+  
+  public int getSize() {
+    return digits.length;
   }
   
   public boolean isZero() {

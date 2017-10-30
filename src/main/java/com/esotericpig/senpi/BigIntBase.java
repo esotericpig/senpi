@@ -37,7 +37,7 @@ public class BigIntBase implements Serializable {
   protected int sign = 0;
   
   public BigIntBase() {
-    this(MutBigIntBase.DEFAULT_BASE);
+    this(BigStrBase.DEFAULT_BASE);
   }
   
   public BigIntBase(int base) {
@@ -63,7 +63,7 @@ public class BigIntBase implements Serializable {
   }
   
   public BigIntBase(String s) {
-    this(s,MutBigIntBase.DEFAULT_BASE);
+    this(s,BigStrBase.DEFAULT_BASE);
   }
   
   public BigIntBase(String s,int base) {
@@ -412,8 +412,24 @@ public class BigIntBase implements Serializable {
     return getCache10(base,i);
   }
   
+  public int getDigit(int i) {
+    return digits[i];
+  }
+  
+  public int getLength() {
+    return digits.length;
+  }
+  
+  public int getOffset() {
+    return 0;
+  }
+  
   public int getSign() {
     return sign;
+  }
+  
+  public int getSize() {
+    return getLength();
   }
   
   public boolean isZero() {
