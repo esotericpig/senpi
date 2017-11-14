@@ -25,7 +25,7 @@ For safety, **distributionSha256Sum** has been added to **gradle-wrapper.propert
 If you used Gradle Wrapper, any downloaded files will be stored in **$USER_HOME/.gradle/wrapper/dists**, so delete this directory afterwards.
 
 ## use
-Default tasks (gradle -q) are:  run.
+Default tasks (gradle -q) are:  **run**
 
 - **gradle tasks**
 - **gradle clean**
@@ -35,6 +35,9 @@ Default tasks (gradle -q) are:  run.
 - **gradle javadoc**
 - **gradle jar**
 - **gradle distTar distZip**
+
+You can exclude a task using **-x**.  This is useful for long and/or annoying tasks, like **test**, or for debugging:
+- **gradle -x test clean build run**
 
 ## license
 senpi (https://github.com/esotericpig/senpi)  
