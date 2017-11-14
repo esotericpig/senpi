@@ -42,6 +42,7 @@ ext.encoding = 'UTF-8'
 ext.locale   = 'en_US'
 
 // Test
+ext.apiGuardianVersion  = '1.0.0'
 ext.junit4Version       = '4.12' // Not used
 ext.junitJupiterVersion = '5.0.2'
 ext.junitVintageVersion = '4.12.2' // Not used
@@ -72,6 +73,8 @@ repositories {
 
 dependencies {
   //testCompile "junit:junit:${project.ext.junit4Version}"
+  // To avoid compiler warnings about API$Status.STABLE
+  testCompile "org.apiguardian:apiguardian-api:${project.ext.apiGuardianVersion}"
   testCompile "org.junit.jupiter:junit-jupiter-api:${project.ext.junitJupiterVersion}"
   
   testRuntime "org.junit.jupiter:junit-jupiter-engine:${project.ext.junitJupiterVersion}"
