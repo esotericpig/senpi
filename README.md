@@ -21,8 +21,19 @@ Instead, you can also move **gradle-wrapper.jar** and **gradle-wrapper.propertie
 
 For safety, **distributionSha256Sum** has been added to **gradle-wrapper.properties**.
 
+## setup notes
+By default, Gradle now runs a Daemon.  You can stop it by using this command:
+- **./gradlew(.bat) --stop**
+
+To disable the Daemon, add the following to **$USER_HOME/.gradle/gradle.properties** (or create the file):
+- **org.gradle.daemon=false**
+
 ## uninstall
-If you used Gradle Wrapper, any downloaded files will be stored in **$USER_HOME/.gradle/wrapper/dists**, so delete this directory afterwards.
+If you used Gradle Wrapper, do the following:
+1. Stop the Gradle Daemon if it is running:
+   - **./gradlew(.bat) --stop**
+2. Delete any files stored in here:
+   - **$USER_HOME/.gradle/wrapper/dists**
 
 ## use
 Default tasks (gradle -q) are:  **run**
