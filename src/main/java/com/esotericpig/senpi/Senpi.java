@@ -21,22 +21,12 @@ package com.esotericpig.senpi;
 // TODO: when calculating pi, use base 10 to ensure algorithm is working
 //       and then use base 12, as the number may be different than base 12
 //       numbers on the internet, due to actually using a proper representation
+
 /**
- * @author Jonathan Bradley Whited, @esotericpig
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
 public class Senpi {
   public static void main(String[] args) {
-    BigIntBase.main(args);
-    
-    //123.456
-    //BigDecBase a = new BigDecBase("000000123AB.456AB",12);
-    //System.out.println(a);
-    /*
-    BigDecBase a = new BigDecBase("1A.1A");
-    BigDecBase b = new BigDecBase("1B.1B");
-    System.out.println(a);
-    System.out.println(b);
-    System.out.println(a.plus(b));
-    */
+    BigNumBaseApp.main(args);
   }
 }

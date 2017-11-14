@@ -18,25 +18,35 @@
 
 package com.esotericpig.senpi;
 
-import java.math.BigInteger;
-import java.util.Random;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.math.BigInteger;
+
+import java.util.Random;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+// TODO: test #floorMod(...) using Math.floorMod(...) with regular ints
 
 /**
- * @author Jonathan Bradley Whited, @esotericpig
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
 public class AllBigIntBaseTest {
   public static final int TEST_COUNT = 100; // Number of tests to perform
 
   protected Random rand = null;
   
-  @Before
-  public void setUp() {
+  @BeforeEach
+  public void initEachTest() {
     rand = new Random();
+  }
+  
+  @AfterEach
+  public void finEachTest() {
+    rand = null;
   }
   
   @Test
@@ -63,14 +73,14 @@ public class AllBigIntBaseTest {
   }
   
   public void testCache(String name,BigIntBase cacheVal,BigIntBase testVal) {
-    assertNotNull("Null cache: " + name,cacheVal);
+    assertNotNull(cacheVal,"Null cache: " + name);
     
     String cvs = cacheVal.toString();
     String tvs = testVal.toString();
     String m = "Cache: " + name + ": " + cvs + " =? " + tvs;
     
     System.out.println(m);    
-    assertEquals(m,cvs,tvs);
+    assertEquals(cvs,tvs,m);
   }
   
   @Test
@@ -104,7 +114,7 @@ public class AllBigIntBaseTest {
         if(op == '/' || op == '%' || op == 'r') {
           if(b.signum() == 0) {
             // Prevent divide by 0
-            mb = bb.c().ONE.m();
+            mb = bb.c().ONE.mbib();
             bb = bb.c().ONE;
             b = BigInteger.ONE;
           }
@@ -128,7 +138,7 @@ public class AllBigIntBaseTest {
           case '/': ma.over(mb); bc = ba.over(bb); c = a.divide(b); break;
           case '%': ma.mod(mb); bc = ba.mod(bb); c = a.mod(b); break;
           case 'r': ma.rem(mb); bc = ba.rem(bb); c = a.remainder(b); break;
-          default: assertNotNull("Operation undefined: " + op,null);
+          default: assertNotNull(null,"Operation undefined: " + op);
         }
         
         String mas = ma.toString().toUpperCase();
@@ -149,8 +159,8 @@ public class AllBigIntBaseTest {
         String m = msg.toString();
         
         System.out.println(m);
-        assertEquals(m,mas,cs);
-        assertEquals(m,bcs,cs);
+        assertEquals(mas,cs,m);
+        assertEquals(bcs,cs,m);
       }
     }
   }

@@ -1,5 +1,5 @@
 # senpi
-pi in base 12 with custom-made Mutable/Immutable Big Integer classes for use with (almost) any base.
+pi in base 12 with custom-made Big Integer/Decimal classes for use with (almost) any base.
 
 The idea was taken from Kryon channelings by channeler Lee Carroll.
 
@@ -25,12 +25,16 @@ For safety, **distributionSha256Sum** has been added to **gradle-wrapper.propert
 If you used Gradle Wrapper, any downloaded files will be stored in **$USER_HOME/.gradle/wrapper/dists**, so delete this directory afterwards.
 
 ## use
+Default tasks (gradle -q) are:  run.
+
 - **gradle tasks**
 - **gradle clean**
+- **gradle build**
 - **gradle test**
 - **gradle -q run**
 - **gradle javadoc**
 - **gradle jar**
+- **gradle distTar distZip**
 
 ## license
 senpi (https://github.com/esotericpig/senpi)  

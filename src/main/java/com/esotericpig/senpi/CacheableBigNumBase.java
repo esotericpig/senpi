@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2017 Jonathan Bradley Whited (@esotericpig)
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,17 +18,17 @@
 
 package com.esotericpig.senpi;
 
+import java.io.Serializable;
+
 /**
  * @author Jonathan Bradley Whited (@esotericpig)
  */
-public class DivideByZeroException extends ArithmeticException {
-  private static final long serialVersionUID = 1L;
-
-  public DivideByZeroException() {
-    super();
-  }
+public interface CacheableBigNumBase<N extends BigNumBase,C extends BigCacheBase<N>> extends Serializable {
+  public abstract C getCache();
+  public abstract N getCache(String numberStr);
+  public abstract N getCache10(int numberBase10);
   
-  public DivideByZeroException(String s) {
-    super(s);
-  }
+  public abstract C c();
+  public abstract N c(String numberStr);
+  public abstract N c10(int numberBase10);
 }

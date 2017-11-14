@@ -18,23 +18,30 @@
 
 package com.esotericpig.senpi;
 
-import java.util.Random;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Random;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Jonathan Bradley Whited, @esotericpig
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
 public class AllBigDecBaseTest {
   public static final int TEST_COUNT = 100; // Number of tests to perform
   
   protected Random rand = null;
   
-  @Before
-  public void setUp() {
+  @BeforeEach
+  public void initEachTest() {
     rand = new Random();
+  }
+  
+  @AfterEach
+  public void finEachTest() {
+    rand = null;
   }
   
   @Test
@@ -53,14 +60,14 @@ public class AllBigDecBaseTest {
       msg.append(s).append(" ~? ").append(bdas).append('\n');
       
       // $1 to keep negative sign
-      s = s.replaceAll(spatt,"$1").toUpperCase();
+      s = s.replaceAll(spatt,"$1");
       bdas = bdas.replaceAll(spatt,"$1"); // Only for 0.~ really
       
       msg.append(s).append(" =? ").append(bdas).append('\n');
       String m = msg.toString();
       
       System.out.println(m);
-      assertEquals(m,s,bdas);
+      assertEquals(s,bdas,m);
     }
   }
 }

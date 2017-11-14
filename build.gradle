@@ -17,27 +17,71 @@
  */
 
 apply plugin: 'application'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
-group = 'com.esotericpig.senpi'
-version = '0.5'
-description = 'pi base 12'
+/**
+ * Properties
+ */
+ext.name    = 'senpi'
+version     = '0.6.4'
+ext.author  = 'Jonathan Bradley Whited (@esotericpig)'
+ext.license = 'LGPL-3.0'
 
-ext.charset = 'UTF-8'
+ext.summary  = 'pi base 12'
+description  = 'pi in base 12 with custom-made Big Integer/Decimal classes for use with (almost) any base.'
+ext.homepage = 'https://github.com/esotericpig/senpi'
+
+group         = 'com.esotericpig.senpi'
+mainClassName = "${project.group}.Senpi"
+
+sourceCompatibility = '1.8' // Source language to interpret (*.java)
+targetCompatibility = '1.8' // Bytecode to output (*.class)
+
+ext.charset  = 'UTF-8'
 ext.encoding = 'UTF-8'
-ext.locale = 'en_US'
-mainClassName = "${group}.Senpi"
+ext.locale   = 'en_US'
 
-javadoc.title = 'senpi'
+// Test
+ext.junit4Version       = '4.12' // Not used
+ext.junitJupiterVersion = '5.0.2'
+ext.junitVintageVersion = '4.12.2' // Not used
 
-defaultTasks 'run'
+// Javadoc
+javadoc.title = "${project.ext.name} v${project.version}"
+
+/**
+ * Repositories, dependencies, etc.
+ */
+buildscript {
+  // Buildscript properties must be inside buildscript
+  ext.junitPlatformVersion = '1.0.2'
+  
+  repositories {
+    mavenCentral()
+  }
+  
+  dependencies {
+    // For plugin 'org.junit.platform.gradle.plugin'
+    classpath "org.junit.platform:junit-platform-gradle-plugin:${project.ext.junitPlatformVersion}"
+  }
+}
 
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  testCompile 'junit:junit:4.+'
+  //testCompile "junit:junit:${project.ext.junit4Version}"
+  testCompile "org.junit.jupiter:junit-jupiter-api:${project.ext.junitJupiterVersion}"
+  
+  testRuntime "org.junit.jupiter:junit-jupiter-engine:${project.ext.junitJupiterVersion}"
+  //testRuntime("org.junit.vintage:junit-vintage-engine:${project.ext.junitVintageVersion}")
 }
+
+/**
+ * Tasks, etc.
+ */
+defaultTasks 'run'
 
 compileJava {
   encoding = project.ext.encoding
@@ -51,7 +95,17 @@ jar {
   manifest {
     attributes 'Main-Class': mainClassName
     attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
+    
+    attributes 'App-Name': project.ext.name
+    attributes 'App-Version': project.version
+    attributes 'App-Author': project.ext.author
+    attributes 'App-License': project.ext.license
+    
+    attributes 'App-Summary': project.ext.summary
+    attributes 'App-Description': project.description
+    attributes 'App-Homepage': project.ext.homepage
   }
+  
   from configurations.compile.collect {
     it.isDirectory() ? it : zipTree(it)
   }
@@ -63,7 +117,7 @@ javadoc {
     charSet = project.ext.charset
     encoding = project.ext.encoding
     locale = project.ext.locale
-    memberLevel = JavadocMemberLevel.PRIVATE // Show all
+    memberLevel = JavadocMemberLevel.PROTECTED // Show public & protected (don't show private)
     version = true
   }
 }

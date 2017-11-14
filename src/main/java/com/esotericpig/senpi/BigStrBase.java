@@ -19,6 +19,7 @@
 package com.esotericpig.senpi;
 
 import java.io.Serializable;
+
 import java.util.Random;
 
 /**
@@ -27,23 +28,21 @@ import java.util.Random;
  * 2) Random number strings in user-specified bases.
  * </pre>
  *
- * @author Jonathan Bradley Whited, @esotericpig
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
 public class BigStrBase implements Serializable {
   private static final long serialVersionUID = 1L;
   
-  public static final int DEFAULT_BASE = 12;
-  
-  public boolean isDec;
+  public boolean isDecimal;
   public boolean shouldTruncZero;
   
-  public BigStrBase(boolean shouldTruncZero,boolean isDec) {
-    this.isDec = isDec;
+  public BigStrBase(boolean shouldTruncZero,boolean isDecimal) {
+    this.isDecimal = isDecimal;
     this.shouldTruncZero = shouldTruncZero;
   }
   
-  public ParsedData parse(String s,int base) {
-    // Use Character.MIN_RADIX/MAX_RADIX instead?
+  public ParsedData parse(String numberStr,int base) {
+    // TODO: Use Character.MIN_RADIX/MAX_RADIX instead?
     if(base < 2 || base > (Integer.MAX_VALUE / 2 + 1)) {
       // Unary not supported (because of 0, and 1s need to be tallies)
       throw new UnsupportedBaseException("Unsupported base: " + base);
@@ -58,8 +57,8 @@ public class BigStrBase implements Serializable {
     boolean hasNonZeroAfterDot = false;
     boolean hasZero = false;
     
-    for(int i = 0; i < s.length(); ++i) {
-      char c = s.charAt(i);
+    for(int i = 0; i < numberStr.length(); ++i) {
+      char c = numberStr.charAt(i);
       
       if(c == '-' || c == '+') {
         if(pd.sign == 0) {
@@ -72,7 +71,7 @@ public class BigStrBase implements Serializable {
           throw new InvalidSignException("Invalid sign after digit(s)");
         }
       }
-      else if(isDec && c == '.') {
+      else if(isDecimal && c == '.') {
         if(hasDot) {
           throw new InvalidDotException("Invalid extra decimal point(s)");
         }
@@ -135,7 +134,7 @@ public class BigStrBase implements Serializable {
       return pd;
     }
     
-    // Convert s to digits
+    // Convert numberStr to digits
     pd.digits = new int[pd.length];
     
     if(!shouldTruncZero) {
@@ -145,10 +144,10 @@ public class BigStrBase implements Serializable {
       pd.sign = 1; // Default to +#
     }
     
-    for(int i = pd.offset; begIndex < s.length(); ++begIndex) {
-      char c = s.charAt(begIndex);
+    for(int i = pd.offset; begIndex < numberStr.length(); ++begIndex) {
+      char c = numberStr.charAt(begIndex);
       
-      if(isDec && c == '.') {
+      if(isDecimal && c == '.') {
         // .007 (instead of 0.007)
         if(!hasInt) {
           pd.digits[i++] = 0; // Add 0 in place of dot to make 0.007
@@ -179,7 +178,7 @@ public class BigStrBase implements Serializable {
     return randNumStr(base,minLen,maxLen,rand.nextBoolean(),rand.nextBoolean(),rand.nextBoolean(),rand);
   }
   
-  public static String randNumStr(int base,int minLen,int maxLen,boolean isPos,boolean allowZeroPad,boolean isDec,Random rand) {
+  public static String randNumStr(int base,int minLen,int maxLen,boolean isPositive,boolean allowZeroPad,boolean isDecimal,Random rand) {
     if(base < 2) {
       // Avoid infinite loop at !allowZeroPad
       throw new UnsupportedBaseException("Unsupported base: " + base);
@@ -198,7 +197,7 @@ public class BigStrBase implements Serializable {
     int digit = 0;
     StringBuilder sb = new StringBuilder(len + 2); // +2 for (potential) sign/dot
     
-    if(isPos) {
+    if(isPositive) {
       // Add "+" or not for +#? (+0 is allowed)
       if(rand.nextBoolean()) {
         sb.append('+');
@@ -218,7 +217,7 @@ public class BigStrBase implements Serializable {
       }
     }
     
-    int dotIndex = isDec ? rand.nextInt(len) : -1;
+    int dotIndex = isDecimal ? rand.nextInt(len) : -1;
     
     for(int i = 0; i < len; ++i) {
       if(i == dotIndex) {

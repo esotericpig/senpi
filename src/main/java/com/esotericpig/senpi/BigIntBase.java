@@ -18,26 +18,24 @@
 
 package com.esotericpig.senpi;
 
-import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.Map;
 
 /**
- * @author Jonathan Bradley Whited, @esotericpig
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
-public class BigIntBase implements Serializable {
+public class BigIntBase implements BigNumBase<BigIntBase>,CacheableBigNumBase<BigIntBase,BigIntBase.Cache> {
   private static final long serialVersionUID = 1L;
   
-  protected static final HashMap<Integer,Cache> caches = new HashMap<Integer,Cache>();
+  protected static final HashMap<Integer,Cache> CACHES = new HashMap<Integer,Cache>();
   
   protected int base = 0;
   protected int[] digits = null;
   protected int sign = 0;
   
   public BigIntBase() {
-    this(BigStrBase.DEFAULT_BASE);
+    this(DEFAULT_BASE);
   }
   
   public BigIntBase(int base) {
@@ -46,64 +44,71 @@ public class BigIntBase implements Serializable {
     this.sign = 0;
   }
   
-  public BigIntBase(BigIntBase bib) {
-    this(bib,bib.sign);
-  }
-  
-  protected BigIntBase(BigIntBase bib,int sign) {
-    this.base = bib.base;
-    this.digits = Arrays.copyOf(bib.digits,bib.digits.length);
-    this.sign = sign;
-  }
-  
-  public BigIntBase(MutBigIntBase mbib) {
-    this.base = mbib.base;
-    this.digits = Arrays.copyOfRange(mbib.digits,mbib.offset,mbib.digits.length);
-    this.sign = mbib.sign;
-  }
-  
-  public BigIntBase(String s) {
-    this(s,BigStrBase.DEFAULT_BASE);
-  }
-  
-  public BigIntBase(String s,int base) {
-    MutBigIntBase mbib = new MutBigIntBase(s,base,true);
-    
-    this.base = base;
-    this.digits = mbib.digits;
-    this.sign = mbib.sign;
-  }
-  
-  public BigIntBase(String s,int base,BigStrBase bsb) {
-    MutBigIntBase mbib = new MutBigIntBase(s,base,bsb);
-    
-    this.base = base;
-    this.digits = ltrim(mbib.digits); // Trim because no offset stored
-    this.sign = mbib.sign;
-  }
-  
   protected BigIntBase(int sign,int[] digits,int base) {
     this.base = base;
     this.digits = digits;
     this.sign = sign;
   }
   
-  public BigIntBase abs() {
-    return (sign == -1) ? new BigIntBase(this,1) : this;
+  public BigIntBase(BigIntBase value) {
+    this(value,value.sign);
   }
   
-  public static int[] add(int[] x,int[] y,int base) {
-    // Make top number (x) the longest (100 + 99)
+  public BigIntBase(MutBigIntBase value) {
+    this.base = value.base;
+    this.digits = Arrays.copyOfRange(value.digits,value.offset,value.offset + value.length);
+    this.sign = value.sign;
+  }
+  
+  protected BigIntBase(BigIntBase value,int sign) {
+    this.base = value.base;
+    this.digits = Arrays.copyOf(value.digits,value.digits.length);
+    this.sign = sign;
+  }
+  
+  public BigIntBase(String valueStr) {
+    this(valueStr,DEFAULT_BASE);
+  }
+  
+  public BigIntBase(String valueStr,int base) {
+    MutBigIntBase value = new MutBigIntBase(valueStr,base,true);
+    
+    this.base = base;
+    this.digits = value.digits;
+    this.sign = value.sign;
+  }
+  
+  public BigIntBase(String valueStr,int base,BigStrBase bsb) {
+    MutBigIntBase value = new MutBigIntBase(valueStr,base,bsb);
+    
+    this.base = base;
+    this.digits = ltrim(value.digits); // #ltrim(...) because no offset stored
+    this.sign = value.sign;
+  }
+  
+  public BigIntBase abs() {
+    return (sign <= -1) ? new BigIntBase(this,1) : this;
+  }
+  
+  /**
+   * <pre>
+   * This doesn't check #base or the comparison for internal methods.
+   * 
+   * For those checks, use #plus(...) or #minus(...).
+   * </pre>
+   */
+  protected static int[] add(int[] x,int[] y,int base) {
+    // Make the top number (x) the longest (100 + 99) for z and the loop
     if(x.length < y.length) {
-      int[] temp = x;
+      int[] tmp = x;
       x = y;
-      y = temp;
+      y = tmp;
     }
     
     int carry = 0;
-    int[] result = new int[x.length];
     int xi = x.length;
     int yi = y.length;
+    int[] z = new int[x.length];
     
     // Add and bring down
     while(xi > 0) {
@@ -116,70 +121,91 @@ public class BigIntBase implements Serializable {
         carry = 0;
       }
       else {
-        carry = sum / base; // left digit
-        sum = sum % base; // right digit
+        carry = sum / base; // Left digit
+        sum = sum % base; // Right digit
       }
       
-      result[xi] = sum;
+      z[xi] = sum;
     }
     
     // Add carry with potential growth
     if(carry != 0) {
       if(xi <= 0) {
-        result = grow(result,1);
+        z = lgrow(z,1);
         xi = 0;
       }
-      result[xi] = carry;
+      
+      z[xi] = carry;
     }
     
-    return result;
+    return z;
   }
   
-  public static int compare(int[] x,int[] y) {
+  public BigIntBase clone() {
+    return new BigIntBase(this);
+  }
+  
+  protected static int compare(int[] x,int[] y) {
     if(x.length < y.length) {
       return -1;
     }
     if(x.length > y.length) {
       return 1;
     }
+    
+    // Same length
     for(int i = 0; i < x.length; ++i) {
-      if(x[i] < y[i]) {
+      int xd = x[i];
+      int yd = y[i];
+      
+      if(xd < yd) {
         return -1;
       }
-      if(x[i] > y[i]) {
+      if(xd > yd) {
         return 1;
       }
     }
+    
     return 0;
   }
   
-  public int compareTo(BigIntBase bib) {
-    if(bib.base != base) {
+  public int compareTo(BigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
-    if(sign < bib.sign) {
+    if(sign < y.sign) {
       return -1;
     }
-    if(sign > bib.sign) {
+    if(sign > y.sign) {
       return 1;
     }
-    if(sign == 0 && bib.sign == 0) {
+    if(sign == 0 && y.sign == 0) {
       return 0;
     }
-    return compare(digits,bib.digits);
+    
+    return compare(digits,y.digits);
   }
   
-  public static int[] grow(int[] x,int lengthToAdd) {
-    int[] result = new int[x.length + lengthToAdd];
+  public BigIntBase floorMod(BigIntBase y) {
+    return toMutBigIntBase().floorMod(y.toMutBigIntBase()).toBigIntBase();
+  }
+  
+  protected static int[] lgrow(int[] x,int lengthToAdd) {
+    int[] z = new int[x.length + lengthToAdd];
 
-    for(int i = lengthToAdd; i < result.length; ++i) {
-      result[i] = x[i - lengthToAdd];
+    for(int i = lengthToAdd,j = 0; i < z.length; ++i,++j) {
+      z[i] = x[j];
     }
-    return result;
+    
+    return z;
   }
   
-  public static int[] ltrim(int[] x) {
-    if(x.length == 1) {
+  public BigIntBase ltrim() {
+    return this;
+  }
+  
+  protected static int[] ltrim(int[] x) {
+    if(x.length <= 1) {
       return x;
     }
     
@@ -188,129 +214,145 @@ public class BigIntBase implements Serializable {
     while(i < x.length && x[i] == 0) {
       ++i;
     }
-    if(i < 1) {
-      return x;
-    }
+    
+    // For 0
     if(i >= x.length) {
       return new int[]{0};
     }
+    
     return Arrays.copyOfRange(x,i,x.length);
   }
   
-  public BigIntBase minus(BigIntBase bib) {
-    if(bib.base != base) {
+  public BigIntBase minus(BigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
-      return bib.negate();
+      return y.negate();
     }
-    if(bib.sign == 0) {
+    if(y.sign == 0) {
       return this;
     }
     // -4 - 4 = -8; 4 - -4 = 8
-    if(sign != bib.sign) {
-      // Addition
-      return new BigIntBase(sign,add(digits,bib.digits,base),base);
+    if(sign != y.sign) {
+      return new BigIntBase(sign,add(digits,y.digits,base),base);
     }
     
-    int comparison = compare(digits,bib.digits);
+    int comp = compare(digits,y.digits);
     
-    if(comparison == 0) {
-      return new BigIntBase(base); // Same value
+    if(comp == 0) {
+      return getCache(base).ZERO; // Same value
     }
-    return new BigIntBase(sign * comparison,subtract(digits,bib.digits,base,comparison),base);
+    
+    return new BigIntBase(sign * comp,subtract(digits,y.digits,base,comp),base);
   }
   
-  public BigIntBase mod(BigIntBase bib) {
-    return overMod(bib)[1];
+  public BigIntBase mod(BigIntBase y) {
+    return toMutBigIntBase().mod(y.toMutBigIntBase()).toBigIntBase();
   }
   
-  public static int[] multiply(int[] x,int[] y,int base) {
-    int[] result = new int[x.length + y.length];
+  protected static int[] multiply(int[] x,int[] y,int base) {
+    int[] z = new int[x.length + y.length]; // Max length of product
     
     for(int yi = y.length - 1; yi >= 0; --yi) {
       int carry = 0;
       
-      for(int xi = x.length - 1,ri = x.length + yi; xi >= 0; --xi,--ri) {
-        int product = result[ri] + y[yi] * x[xi] + carry;
+      for(int xi = x.length - 1,zi = x.length + yi; xi >= 0; --xi,--zi) {
+        int product = z[zi] + y[yi] * x[xi] + carry;
         
         if(product < base) {
           carry = 0;
         }
         else {
-          carry = product / base; // left digit
-          product = product % base; // right digit
+          carry = product / base; // Left digit
+          product = product % base; // Right digit
         }
         
-        result[ri] = product;
+        z[zi] = product;
       }
       
       if(carry > 0) {
-        result[yi] = carry; // yi, so that in 111, then 1 => 10 => 100 place
+        z[yi] = carry; // yi, so that in 111, then 1 => 10 => 100 place
       }
     }
     
-    // Shrink down for overestimation
-    result = ltrim(result);
-    
-    return result;
+    return ltrim(z); // #ltrim(...) for overestimation
   }
   
   public BigIntBase negate() {
     return (sign != 0) ? new BigIntBase(this,-sign) : this;
   }
   
-  public BigIntBase over(BigIntBase bib) {
-    return overRem(bib)[0];
+  public BigIntBase over(BigIntBase y) {
+    return overRem(y).quotient;
   }
   
-  public BigIntBase[] overMod(BigIntBase bib) {
-    BigIntBase[] result = overRem(bib);
-    if(result[1].sign != 0) {
-      result[1].sign = 1;
-    }
-    return result;
+  public BigQuoBase<BigIntBase> overRem(BigIntBase y) {
+    return toMutBigIntBase().overRem(y.toMutBigIntBase()).toBigIntBase();
   }
   
-  public BigIntBase[] overRem(BigIntBase bib) {
-    MutBigIntBase x = new MutBigIntBase(this);
-    MutBigIntBase y = new MutBigIntBase(bib);
-    MutBigIntBase[] z = x.overRem(y);
-    
-    return new BigIntBase[] {
-      new BigIntBase(z[0])
-      ,new BigIntBase(z[1])
-    };
-  }
-  
-  public BigIntBase plus(BigIntBase bib) {
-    if(bib.base != base) {
+  public BigIntBase plus(BigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
-      return bib;
+      return y;
     }
-    if(bib.sign == 0) {
+    if(y.sign == 0) {
       return this;
     }
-    if(sign != bib.sign) {
-      // Subtraction
-      int comparison = compare(digits,bib.digits);
+    if(sign != y.sign) {
+      int comp = compare(digits,y.digits);
       
-      if(comparison == 0) {
-        return new BigIntBase(base); // Same value
+      if(comp == 0) {
+        return getCache(base).ZERO; // Same value
       }
-      return new BigIntBase(sign * comparison,subtract(digits,bib.digits,base,comparison),base);
+      
+      return new BigIntBase(sign * comp,subtract(digits,y.digits,base,comp),base);
     }
-    return new BigIntBase(sign,add(digits,bib.digits,base),base);
+    
+    return new BigIntBase(sign,add(digits,y.digits,base),base);
   }
   
-  public BigIntBase rem(BigIntBase bib) {
-    return overRem(bib)[1];
+  public BigIntBase precise(int precisionToAddOrSub) {
+    return setPrecision(digits.length + precisionToAddOrSub);
+  }
+  
+  public BigIntBase rem(BigIntBase y) {
+    return overRem(y).remainder;
+  }
+  
+  public BigIntBase rtrim() {
+    if(digits.length <= 1) {
+      if(digits.length == 1 && digits[0] == 0) {
+        sign = 0; // Mr. Justin Case
+      }
+      
+      return this;
+    }
+    
+    int lenMinus1 = digits.length - 1;
+    int i = lenMinus1;
+    
+    while(i >= 0 && digits[i] == 0) {
+      --i;
+    }
+    if(i == lenMinus1) {
+      return this;
+    }
+    if(i < 0) {
+      return getCache(base).ZERO;
+    }
+    
+    return new BigIntBase(sign,Arrays.copyOf(digits,i + 1),base);
+  }
+  
+  public BigIntBase scale(int scaleToAddOrSub) {
+    return setScale(digits.length + scaleToAddOrSub);
   }
   
   public static int[] subtract(int[] x,int[] y,int base,int comparison) {
-    // Make top number (x) the longest (100 - 99)
+    // Make the top number (x) the largest value (99 - 88) for z and the loop
     if(comparison < 0) {
       int[] temp = x;
       x = y;
@@ -318,9 +360,9 @@ public class BigIntBase implements Serializable {
     }
     
     int borrow = 0;
-    int[] result = new int[x.length];
     int xi = x.length;
     int yi = y.length;
+    int[] z = new int[x.length];
     
     // Subtract and borrow
     while(xi > 0) {
@@ -339,49 +381,79 @@ public class BigIntBase implements Serializable {
         borrow = 0;
       }
       
-      result[xi] = diff;
+      z[xi] = diff;
     }
     
-    // Shrink down for borrow and/or 0s (1000 - 999 = 1 [not 001])
-    return ltrim(result);
+    return ltrim(z); // #ltrim(...) for borrow and/or 0s (1000 - 999 = 1 [not 001])
   }
   
-  public BigIntBase times(BigIntBase bib) {
-    if(bib.base != base) {
+  public BigIntBase times(BigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
-    if(sign == 0 || bib.sign == 0) {
-      return new BigIntBase(base);
+    if(sign == 0 || y.sign == 0) {
+      return getCache(base).ZERO;
     }
-    return new BigIntBase(sign * bib.sign,multiply(digits,bib.digits,base),base);
+    
+    return new BigIntBase(sign * y.sign,multiply(digits,y.digits,base),base);
+  }
+  
+  public BigIntBase trim() {
+    // #ltrim() does nothing, but used in case it changes in future
+    return ltrim().rtrim();
+  }
+  
+  public BigIntBase under(BigIntBase y) {
+    return underRem(y).quotient;
+  }
+  
+  public BigQuoBase<BigIntBase> underRem(BigIntBase y) {
+    return y.overRem(this);
+  }
+  
+  public BigIntBase zero() {
+    return getCache(base).ZERO;
+  }
+  
+  public BigIntBase set(BigIntBase value) {
+    return new BigIntBase(value);
+  }
+  
+  public BigIntBase setPrecision(int precision) {
+    // Even if greater than, return #this because BigIntBase doesn't store an offset
+    if(precision >= digits.length) {
+      return this;
+    }
+    if(precision < 1) {
+      return getCache(base).ZERO;
+    }
+    
+    int[] newDigits = ltrim(Arrays.copyOf(digits,precision));
+    
+    if(isZero(newDigits)) {
+      return getCache(base).ZERO;
+    }
+    
+    return new BigIntBase(sign,newDigits,base);
+  }
+  
+  public BigIntBase setScale(int scale) {
+    if(scale == digits.length) {
+      return this;
+    }
+    if(scale < 1) {
+      return getCache(base).ZERO;
+    }
+    
+    return new BigIntBase(sign,Arrays.copyOf(digits,scale),base);
+  }
+  
+  public int get(int index) {
+    return digits[index];
   }
   
   public int getBase() {
     return base;
-  }
-  
-  public Cache c() {
-    return getCache();
-  }
-  
-  public static Cache c(int base) {
-    return getCache(base);
-  }
-  
-  public static BigIntBase c(int base,String s) {
-    return getCache(base,s);
-  }
-  
-  public BigIntBase c(String s) {
-    return getCache(s);
-  }
-  
-  public static BigIntBase c10(int base,int i) {
-    return getCache10(base,i);
-  }
-  
-  public BigIntBase c10(int i) {
-    return getCache10(i);
   }
   
   public Cache getCache() {
@@ -389,31 +461,33 @@ public class BigIntBase implements Serializable {
   }
   
   public static Cache getCache(int base) {
-    Cache result = caches.get(base);
+    Cache result = CACHES.get(base);
+    
     if(result == null) {
-      caches.put(base,result = new Cache(base));
+      CACHES.put(base,result = new Cache(base));
     }
+    
     return result;
   }
   
-  public static BigIntBase getCache(int base,String s) {
-    return getCache(base).getCustom(s);
+  public static BigIntBase getCache(int base,String numberStr) {
+    return getCache(base).getCustom(numberStr);
   }
   
-  public BigIntBase getCache(String s) {
-    return getCache(base,s);
+  public BigIntBase getCache(String numberStr) {
+    return getCache(base,numberStr);
   }
   
-  public static BigIntBase getCache10(int base,int i) {
-    return getCache(base).getCustom10(i);
+  public static BigIntBase getCache10(int base,int numberBase10) {
+    return getCache(base).getCustom10(numberBase10);
   }
   
-  public BigIntBase getCache10(int i) {
-    return getCache10(base,i);
+  public BigIntBase getCache10(int numberBase10) {
+    return getCache10(base,numberBase10);
   }
   
-  public int getDigit(int i) {
-    return digits[i];
+  public int getDigit(int index) {
+    return digits[index];
   }
   
   public int getLength() {
@@ -436,16 +510,40 @@ public class BigIntBase implements Serializable {
     return sign == 0;
   }
   
-  public MutBigIntBase m() {
-    return toMut();
+  /**
+   * <pre>
+   * This only checks value, not the length, and is important for #setPrecision(...).
+   * </pre>
+   */
+  protected boolean isZero(int[] value) {
+    for(int i: value) {
+      if(i != 0) {
+        return false;
+      }
+    }
+    
+    return true;
   }
   
-  public MutBigIntBase toMut() {
+  public BigDecBase toBigDecBase() {
+    return null; // TODO: implement
+  }
+  
+  public BigIntBase toBigIntBase() {
+    return this;
+  }
+  
+  public MutBigIntBase toMutBigIntBase() {
     return new MutBigIntBase(this);
   }
   
   public String toString() {
-    StringBuilder sb = new StringBuilder(digits.length + 1);
+    return toString(true);
+  }
+  
+  public String toString(boolean shouldDowncase) {
+    char charNum = shouldDowncase ? 'a' : 'A';
+    StringBuilder sb = new StringBuilder(digits.length + 1); // +1 for potential sign
     
     if(sign < 0) {
       sb.append('-');
@@ -457,83 +555,52 @@ public class BigIntBase implements Serializable {
         sb.append((char)('0' + d));
       }
       else {
-        sb.append((char)('A' + (d - 10)));
+        sb.append((char)(charNum + (d - 10)));
       }
     }
+    
     return sb.toString();
   }
   
-  public static void main(String[] args) {
-    System.out.println("<base#> <#> <op> <#>");
-    System.out.println("  Ex: 12 2 + 2");
-    
-    Scanner stdin = new Scanner(System.in);
-    
-    while(true) {
-      System.out.print("> ");
-      String s = stdin.nextLine();
-      
-      if(s == null || s.length() < 7) {
-        break;
-      }
-      
-      String[] parts = s.trim().split("\\s+");
-      
-      if(parts.length < 4) {
-        break;
-      }
-    
-      int base = Integer.parseInt(parts[0]);
-      char operator = parts[2].charAt(0);
-      
-      BigIntBase a = new BigIntBase(parts[1],base);
-      BigIntBase b = new BigIntBase(parts[3],base);
-      BigIntBase c = null;
-      
-      // Internally, it uses base 2, but calling it 10 arbitrarily
-      BigInteger a10 = new BigInteger(parts[1],base);
-      BigInteger b10 = new BigInteger(parts[3],base);
-      BigInteger c10 = null;
-      
-      switch(operator) {
-        case '+':
-          c = a.plus(b);
-          c10 = a10.add(b10);
-          break;
-        case '-':
-          c = a.minus(b);
-          c10 = a10.subtract(b10);
-          break;
-        case '*':
-          c = a.times(b);
-          c10 = a10.multiply(b10);
-          break;
-        case '/':
-          c = a.over(b);
-          c10 = a10.divide(b10);
-          break;
-        case '%':
-          c = a.mod(b);
-          c10 = a10.mod(b10);
-          break;
-        case 'r':
-          c = a.rem(b);
-          c10 = a10.remainder(b10);
-          break;
-        default: throw new UnsupportedOperationException("Invalid operator: " + operator);
-      }
-      
-      System.out.println("BigIntBase:");
-      System.out.println("\t" + a + " " + operator + " " + b + " = " + c);
-      System.out.println("BigInteger:");
-      System.out.println("\t" + a10.toString(base) + " " + operator + " " + b10.toString(base) + " = " + c10.toString(base));
-      System.out.println("\t" + a10 + " " + operator + " " + b10 + " = " + c10);
-    }
+  public Cache c() {
+    return getCache();
   }
   
-  public static class Cache {
-    public final int BASE;
-    public final HashMap<String,BigIntBase> custom = new HashMap<String,BigIntBase>();
+  public static Cache c(int base) {
+    return getCache(base);
+  }
+  
+  public static BigIntBase c(int base,String numberStr) {
+    return getCache(base,numberStr);
+  }
+  
+  public BigIntBase c(String numberStr) {
+    return getCache(numberStr);
+  }
+  
+  public static BigIntBase c10(int base,int numberBase10) {
+    return getCache10(base,numberBase10);
+  }
+  
+  public BigIntBase c10(int numberBase10) {
+    return getCache10(numberBase10);
+  }
+  
+  public BigDecBase bdb() {
+    return toBigDecBase();
+  }
+  
+  public BigIntBase bib() {
+    return toBigIntBase();
+  }
+  
+  public MutBigIntBase mbib() {
+    return toMutBigIntBase();
+  }
+  
+  public static class Cache extends BigCacheBase<BigIntBase> {
+    private static final long serialVersionUID = 1L;
+    
     public final BigIntBase ZERO;
     public final BigIntBase ONE;
     public final BigIntBase TWO;
@@ -548,8 +615,12 @@ public class BigIntBase implements Serializable {
     public final BigIntBase ELEVEN;
     public final BigIntBase TWELVE;
     
+    // 13 for zero
+    protected final Map<String,BigIntBase> CUSTOM = new HashMap<String,BigIntBase>(13);
+    
     public Cache(int base) {
-      BASE = base;
+      super(base); // Nicki Minaj?
+      
       ZERO = new BigIntBase(base);
       ONE = new BigIntBase("1",base);
       TWO = new BigIntBase(Integer.toString(2,base),base);
@@ -565,24 +636,66 @@ public class BigIntBase implements Serializable {
       TWELVE = new BigIntBase(Integer.toString(12,base),base);
     }
     
-    public BigIntBase cu(String s) {
-      return getCustom(s);
-    }
-    
-    public BigIntBase cu10(int i) {
-      return getCustom10(i);
-    }
-    
-    public BigIntBase getCustom(String s) {
-      BigIntBase result = custom.get(s);
+    public BigIntBase getCustom(String numberStr) {
+      BigIntBase result = CUSTOM.get(numberStr);
+      
       if(result == null) {
-        custom.put(s,result = new BigIntBase(s,BASE));
+        CUSTOM.put(numberStr,result = new BigIntBase(numberStr,BASE));
       }
+      
       return result;
     }
     
-    public BigIntBase getCustom10(int i) {
-      return getCustom(Integer.toString(i,BASE));
+    public BigIntBase zero() {
+      return ZERO;
+    }
+    
+    public BigIntBase one() {
+      return ONE;
+    }
+    
+    public BigIntBase two() {
+      return TWO;
+    }
+    
+    public BigIntBase three() {
+      return THREE;
+    }
+    
+    public BigIntBase four() {
+      return FOUR;
+    }
+    
+    public BigIntBase five() {
+      return FIVE;
+    }
+    
+    public BigIntBase six() {
+      return SIX;
+    }
+    
+    public BigIntBase seven() {
+      return SEVEN;
+    }
+    
+    public BigIntBase eight() {
+      return EIGHT;
+    }
+    
+    public BigIntBase nine() {
+      return NINE;
+    }
+    
+    public BigIntBase ten() {
+      return TEN;
+    }
+    
+    public BigIntBase eleven() {
+      return ELEVEN;
+    }
+    
+    public BigIntBase twelve() {
+      return TWELVE;
     }
   }
 }

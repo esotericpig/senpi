@@ -18,21 +18,18 @@
 
 package com.esotericpig.senpi;
 
-import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Scanner;
 
 /**
  * <pre>
  * This was primarily made to just make division faster.
  * </pre>
- *
- * @author Jonathan Bradley Whited, @esotericpig
+ * 
+ * @author Jonathan Bradley Whited (@esotericpig)
  */
-public class MutBigIntBase implements Serializable {
+public class MutBigIntBase implements BigNumBase<MutBigIntBase> {
   private static final long serialVersionUID = 1L;
-
+  
   protected int base = 0;
   protected int[] digits = null;
   protected int length = 0;
@@ -40,7 +37,7 @@ public class MutBigIntBase implements Serializable {
   protected int sign = 0;
   
   public MutBigIntBase() {
-    this(BigStrBase.DEFAULT_BASE);
+    this(DEFAULT_BASE);
   }
   
   public MutBigIntBase(int base) {
@@ -51,48 +48,6 @@ public class MutBigIntBase implements Serializable {
     this.sign = 0;
   }
   
-  public MutBigIntBase(BigIntBase bib) {
-    this.base = bib.base;
-    this.digits = Arrays.copyOf(bib.digits,bib.digits.length);
-    this.length = bib.digits.length;
-    this.offset = 0;
-    this.sign = bib.sign;
-  }
-  
-  public MutBigIntBase(MutBigIntBase mbib) {
-    this(mbib,mbib.sign);
-  }
-  
-  protected MutBigIntBase(MutBigIntBase mbib,int sign) {
-    this.base = mbib.base;
-    this.digits = Arrays.copyOf(mbib.digits,mbib.digits.length);
-    this.length = mbib.length;
-    this.offset = mbib.offset;
-    this.sign = sign;
-  }
-  
-  public MutBigIntBase(String s) {
-    this(s,BigStrBase.DEFAULT_BASE);
-  }
-  
-  public MutBigIntBase(String s,int base) {
-    this(s,base,false);
-  }
-  
-  public MutBigIntBase(String s,int base,BigStrBase bsb) {
-    BigStrBase.ParsedData pd = bsb.parse(s,base);
-    
-    this.base = base;
-    this.digits = pd.digits;
-    this.length = pd.length;
-    this.offset = pd.offset;
-    this.sign = pd.sign;
-  }
-  
-  public MutBigIntBase(String s,int base,boolean shouldTruncZero) {
-    this(s,base,new BigStrBase(shouldTruncZero,false));
-  }
-  
   protected MutBigIntBase(int sign,int[] digits,int base,int offset,int length) {
     this.base = base;
     this.digits = digits;
@@ -101,24 +56,90 @@ public class MutBigIntBase implements Serializable {
     this.sign = sign;
   }
   
-  public static MutBigIntBase add(MutBigIntBase x,MutBigIntBase y) {
-    final MutBigIntBase result = x;
-    int[] rd = result.digits; // So that we don't overwrite x just yet
+  public MutBigIntBase(BigIntBase value) {
+    this.base = value.base;
+    this.digits = Arrays.copyOf(value.digits,value.digits.length);
+    this.length = value.digits.length;
+    this.offset = 0;
+    this.sign = value.sign;
+  }
+  
+  public MutBigIntBase(MutBigIntBase value) {
+    this(value,value.sign);
+  }
+  
+  protected MutBigIntBase(MutBigIntBase value,int sign) {
+    this.base = value.base;
+    this.digits = Arrays.copyOf(value.digits,value.digits.length);
+    this.length = value.length;
+    this.offset = value.offset;
+    this.sign = sign;
+  }
+  
+  public MutBigIntBase(String valueStr) {
+    this(valueStr,DEFAULT_BASE);
+  }
+  
+  public MutBigIntBase(String valueStr,int base) {
+    this(valueStr,base,false);
+  }
+  
+  public MutBigIntBase(String valueStr,int base,BigStrBase bsb) {
+    BigStrBase.ParsedData pd = bsb.parse(valueStr,base);
     
-    // Make top number (x) the longest (100 + 99)
+    this.base = base;
+    this.digits = pd.digits;
+    this.length = pd.length;
+    this.offset = pd.offset;
+    this.sign = pd.sign;
+  }
+  
+  public MutBigIntBase(String valueStr,int base,boolean shouldTruncZero) {
+    this(valueStr,base,new BigStrBase(shouldTruncZero,false));
+  }
+  
+  public MutBigIntBase abs() {
+    sign &= 1;
+    return this;
+  }
+  
+  /**
+   * <pre>
+   * This doesn't check #base, #sign, or the comparison for internal methods.
+   * 
+   * For those checks, use #plus(...) or #minus(...).
+   * </pre>
+   */
+  protected static MutBigIntBase add(MutBigIntBase x,MutBigIntBase y,MutBigIntBase z) {
+    int zBase = x.base;
+    int zSign = x.sign;
+    
+    // Make the top number (x) the longest (100 + 99) for z and the loop
     if(x.length < y.length) {
+      MutBigIntBase tmp = x;
       x = y;
-      y = result;
-      
-      if(x.length > rd.length) {
-        rd = new int[x.length + 1]; // +1 for potential growth
-      }
+      y = tmp;
     }
     
+    if(z != null) {
+      // Make z.digits be >= the longest number
+      if((z.offset + z.length) < x.length) {
+        z.setPrecision(x.length + 1); // +1 for potential growth from carry
+      }
+      
+      z.sign = zSign;
+    }
+    else {
+      int zLen = x.length + 1; // +1 for potential growth from carry
+      z = new MutBigIntBase(zSign,new int[zLen],zBase,zLen - 1,zLen);
+    }
+    
+    int zOffsetLen = z.offset + z.length;
+    
     int carry = 0;
-    int ri = rd.length;
-    int xi = x.digits.length;
-    int yi = y.digits.length;
+    int xi = x.offset + x.length;
+    int yi = y.offset + y.length;
+    int zi = zOffsetLen;
     
     // Add and bring down
     while(xi > x.offset) {
@@ -127,40 +148,47 @@ public class MutBigIntBase implements Serializable {
       if(yi > y.offset) {
         sum += y.digits[--yi];
       }
-      if(sum < result.base) {
+      if(sum < x.base) {
         carry = 0;
       }
       else {
-        carry = sum / result.base; // left digit
-        sum = sum % result.base; // right digit
+        carry = sum / z.base; // Left digit
+        sum = sum % z.base; // Right digit
       }
       
-      rd[--ri] = sum;
+      z.digits[--zi] = sum;
     }
+    
+    z.length = zOffsetLen - zi;
+    z.offset = zi;
     
     // Add carry with potential growth
     if(carry != 0) {
-      if(ri <= 0) {
-        rd = grow(rd,1);
-        ri = 1;
+      if(zi <= 0) {
+        z.precise(1);
+        zi = 1;
       }
-      rd[--ri] += carry;
+      
+      z.digits[--zi] += carry;
+      z.length += 1;
+      z.offset = zi;
     }
     
-    // Create final result
-    result.digits = rd;
-    result.length = rd.length - ri;
-    result.offset = ri;
-    
-    return x;
+    return z;
   }
   
-  public MutBigIntBase abs() {
-    sign &= 1;
-    return this;
+  public MutBigIntBase clone() {
+    return new MutBigIntBase(this);
   }
   
-  public static int compare(MutBigIntBase x,MutBigIntBase y) {
+  /**
+   * <pre>
+   * This doesn't check #base or #sign for internal methods.
+   * 
+   * For those checks, use #compareTo(...).
+   * </pre>
+   */
+  protected static int compare(MutBigIntBase x,MutBigIntBase y) {
     if(x.length < y.length) {
       return -1;
     }
@@ -169,13 +197,14 @@ public class MutBigIntBase implements Serializable {
     }
     
     // Same length
+    int len = x.offset + x.length;
     int xi = x.offset;
     int yi = y.offset;
     
-    for(; xi < x.digits.length; ++xi,++yi) {
+    for(; xi < len; ++xi,++yi) {
       int xd = x.digits[xi];
       int yd = y.digits[yi];
-    
+      
       if(xd < yd) {
         return -1;
       }
@@ -183,26 +212,68 @@ public class MutBigIntBase implements Serializable {
         return 1;
       }
     }
+    
     return 0;
   }
   
-  public int compareTo(MutBigIntBase mbib) {
-    if(mbib.base != base) {
+  public int compareTo(MutBigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
-    if(sign < mbib.sign) {
+    if(sign < y.sign) {
       return -1;
     }
-    if(sign > mbib.sign) {
+    if(sign > y.sign) {
       return 1;
     }
-    if(sign == 0 && mbib.sign == 0) {
+    if(sign == 0 && y.sign == 0) {
       return 0;
     }
-    return compare(this,mbib);
+    
+    return compare(this,y);
   }
   
-  public static MutBigIntBase[] divideRem(MutBigIntBase x,MutBigIntBase y) {
+  /**
+   * <pre>
+   * This doesn't check #base or #sign for internal methods.
+   * 
+   * For those checks, use #compareTo(new MutBigIntBase(<base>)).
+   * 
+   * This always returns a value of 0 or 1 and is important for #divideRem(...).
+   * </pre>
+   */
+  protected static int compareZero(MutBigIntBase x) {
+    // "y" is 0
+    
+    if(x.length < 1) {
+      return 0;
+    }
+    if(x.length > 1) {
+      return 1;
+    }
+    
+    int len = x.offset + x.length;
+    int xi = x.offset;
+    
+    for(; xi < len; ++xi) {
+      int xd = x.digits[xi];
+      
+      if(xd != 0) {
+        return 1;
+      }
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * <pre>
+   * This doesn't check #base, #sign, or the comparison for internal methods.
+   * 
+   * For those checks, use #overRem(...) or #underRem(...).
+   * </pre>
+   */
+  protected static BigQuoBase<MutBigIntBase> divideRem(MutBigIntBase x,MutBigIntBase y) {
     // Uses Euclidean division:  x = yq + r
     
     int places = Math.max(x.length,y.length);
@@ -210,141 +281,188 @@ public class MutBigIntBase implements Serializable {
     MutBigIntBase remainder = new MutBigIntBase(x);
     
     // Slowly rotate each place value (digit) starting from the left like a combination lock
-    while(places > 0) {
-      divideRem(y,quotient,remainder,places--);
-    }
-    
-    return new MutBigIntBase[]{quotient,remainder};
-  }
-  
-  public static void divideRem(MutBigIntBase y,MutBigIntBase quotient,MutBigIntBase remainder,int places) {
-    if(compare(remainder,y) < 0) {
-      return;
-    }
-    
-    int comparison = 0;
-    MutBigIntBase inc = new MutBigIntBase(1,new int[places],y.base,0,places);
-    inc.digits[0] = 1;
-    MutBigIntBase dec = multiply(inc,y,null);
-    
-    while((comparison = compare(remainder,dec)) >= 0) {
-      add(quotient,inc);
-      subtract(remainder,dec,comparison);
-      
-      if(compare(remainder,y) < 0) {
-        return;
+    for(; places > 0; --places) {
+      if(!divideRem(y,quotient,remainder,places)) {
+        break;
       }
     }
+    
+    BigQuoBase<MutBigIntBase> z = new BigQuoBase<MutBigIntBase>(quotient,remainder);
+    
+    // We have to #compareZero(...) for the sign, else it will result in -0, instead of just 0.
+    // #compareZero(...) doesn't check #sign, so a negative number will still result in 1, so the result will
+    //   always be 0 or 1.
+    z.quotient.sign = x.sign * y.sign * compareZero(z.quotient);
+    z.remainder.sign = x.sign * compareZero(z.remainder);
+    
+    return z;
   }
   
-  public static int[] grow(int[] x,int lengthToAdd) {
-    int[] result = new int[x.length + lengthToAdd];
-
-    for(int i = lengthToAdd; i < result.length; ++i) {
-      result[i] = x[i - lengthToAdd];
+  protected static boolean divideRem(MutBigIntBase y,MutBigIntBase quotient,MutBigIntBase remainder,int places) {
+    // If remainder (x) is < y (ignore #sign), then the quotient is < 0, which is always 0 for ints
+    if(compare(remainder,y) < 0) {
+      return false;
     }
-    return result;
+    
+    // 1000...(places)
+    MutBigIntBase inc = new MutBigIntBase(1,new int[places],remainder.base,0,places);
+    inc.digits[0] = 1;
+    
+    // dec = y * inc
+    int decLen = y.length + (places - 1);
+    MutBigIntBase dec = new MutBigIntBase(1,Arrays.copyOfRange(y.digits,y.offset,y.offset + decLen),remainder.base,0,decLen);
+    
+    int comp = 0;
+    
+    while((comp = compare(remainder,dec)) >= 0) {
+      // Use internal methods to ignore #sign
+      
+      add(quotient,inc,quotient);
+      subtract(remainder,dec,remainder,comp);
+      
+      // See above comment at top of method
+      if(compare(remainder,y) < 0) {
+        return false;
+      }
+    }
+    
+    return true;
+  }
+  
+  public MutBigIntBase floorMod(MutBigIntBase y) {
+    BigQuoBase<MutBigIntBase> result = overRem(y);
+    
+    if(result.remainder.sign != 0 && sign != y.sign) {
+      result.quotient.minus(new MutBigIntBase(1,new int[]{1},base,0,1)); // --quotient;
+    }
+    
+    // Use #negate() and #plus(..) instead of reversing the order because this class is mutable, else we'd
+    //   have to create a new instance.
+    // Equivalent to:  (this.clone()).minus(result.quotient.times(y))
+    return result.quotient.times(y).negate().plus(this);
   }
   
   public MutBigIntBase ltrim() {
-    if(digits.length < 1) {
+    if(digits.length <= 1 || length <= 1) {
+      if(digits.length >= 1 && digits[offset] == 0) {
+        sign = 0;
+      }
+      
       return this;
     }
-    while(offset < digits.length && digits[offset] == 0) {
+    
+    int offsetLen = offset + length;
+    
+    while(offset < offsetLen && digits[offset] == 0) {
       --length;
       ++offset;
     }
+    
     // For 0
-    if(length <= 0 || offset >= digits.length) {
+    if(length <= 0 || offset >= offsetLen) {
       length = 1;
-      offset = digits.length - 1;
+      offset = offsetLen - 1;
+      sign = 0;
     }
+    
     return this;
   }
   
-  public MutBigIntBase ltrimFix() {
-    length = digits.length;
-    offset = 0;
-    
-    return ltrim();
-  }
-  
-  public MutBigIntBase minus(MutBigIntBase mbib) {
-    if(mbib.base != base) {
+  public MutBigIntBase minus(MutBigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
-      return set(mbib).negate();
+      return set(y).negate();
     }
-    if(mbib.sign == 0) {
+    if(y.sign == 0) {
       return this;
     }
     // -4 - 4 = -8; 4 - -4 = 8
-    if(sign != mbib.sign) {
-      return add(this,mbib);
+    if(sign != y.sign) {
+      return add(this,y,this);
     }
     
-    int comparison = compare(this,mbib);
+    int comp = compare(this,y);
     
-    if(comparison == 0) {
+    if(comp == 0) {
       return zero(); // Same value
     }
-    return subtract(this,mbib,comparison);
-  }
-  
-  public MutBigIntBase mod(MutBigIntBase mbib) {
-    return set(overMod(mbib)[1]);
-  }
-  
-  public static MutBigIntBase multiply(MutBigIntBase x,MutBigIntBase y,MutBigIntBase z) {
-    int[] rd = null;
-    int rl = x.length + y.length;
     
-    // Assumes z is 0ed
+    return subtract(this,y,this,comp);
+  }
+  
+  public MutBigIntBase mod(MutBigIntBase y) {
+    MutBigIntBase result = overRem(y).remainder;
+    return set((result.sign >= 0) ? result : result.plus(y));
+  }
+  
+  /**
+   * <pre>
+   * This doesn't check #base or #sign for internal methods.
+   * 
+   * For those checks, use #times(...).
+   * </pre>
+   */
+  protected static MutBigIntBase multiply(MutBigIntBase x,MutBigIntBase y,MutBigIntBase z) {
+    int zBase = x.base;
+    int zOffsetLen = x.length + y.length; // Max length of product
+    int zSign = x.sign * y.sign;
+    
     if(z != null) {
-      if(z.digits.length >= rl) {
-        rd = x.digits;
-        rl = x.digits.length;
+      // Assumes z is 0ed
+      
+      int zol = z.offset + z.length;
+      
+      if(zol >= zOffsetLen) {
+        // Set offset and length for #ltrim()
+        z.length = zOffsetLen;
+        z.offset = zol - zOffsetLen;
       }
       else {
-        rd = new int[rl];
+        z.setPrecision(zOffsetLen);
+        
+        // Set offset and length for #ltrim()
+        z.length = zOffsetLen;
+        z.offset = 0;
       }
+      
+      z.sign = zSign;
     }
     else {
-      rd = new int[rl];
-      z = new MutBigIntBase(x.base); // Zero because z might not be null (above)
+      // Offset is 0 for #ltrim()
+      z = new MutBigIntBase(zSign,new int[zOffsetLen],zBase,0,zOffsetLen);
     }
     
-    for(int yi = y.digits.length - 1; yi >= y.offset; --yi) {
+    int xOffsetLen = x.offset + x.length;
+    int yOffsetLen = y.offset + y.length;
+    
+    for(int yi = yOffsetLen - 1; yi >= y.offset; --yi) {
       int carry = 0;
-      int ryi = rl - (y.digits.length - yi); // Simulation of "x.length + yi"
+      final int zyi = zOffsetLen - (yOffsetLen - yi); // z.offset + x.length + (yi - y.offset)
       
-      for(int xi = x.digits.length - 1,ri = ryi; xi >= x.offset; --xi,--ri) {
-        // Assumes rd is 0ed (possibly from z)
-        int product = rd[ri] + y.digits[yi] * x.digits[xi] + carry;
+      for(int xi = xOffsetLen - 1,zi = zyi; xi >= x.offset; --xi,--zi) {
+        // Assumes z is 0ed
+        
+        int product = z.digits[zi] + y.digits[yi] * x.digits[xi] + carry;
         
         if(product < z.base) {
           carry = 0;
         }
         else {
-          carry = product / z.base; // left digit
-          product = product % z.base; // right digit
+          carry = product / z.base; // Left digit
+          product = product % z.base; // Right digit
         }
         
-        rd[ri] = product;
+        z.digits[zi] = product;
       }
       
       if(carry > 0) {
-        rd[ryi - x.length] = carry; // In 111, then 1 => 10 => 100 place
+        z.digits[zyi - x.length] = carry; // In 111, then 1 => 10 => 100 place
       }
     }
     
-    z.digits = rd;
-    z.length = rl;
-    z.offset = 0;
-    z.sign = x.sign * y.sign;
-    
-    return z.ltrim(); // ltrim() will fix offset and length
+    return z.ltrim(); // #ltrim() will fix offset and length
   }
   
   public MutBigIntBase negate() {
@@ -352,102 +470,135 @@ public class MutBigIntBase implements Serializable {
     return this;
   }
   
-  public MutBigIntBase over(MutBigIntBase mbib) {
-    return set(overRem(mbib)[0]);
+  public MutBigIntBase over(MutBigIntBase y) {
+    return set(overRem(y).quotient);
   }
   
-  public MutBigIntBase[] overMod(MutBigIntBase mbib) {
-    MutBigIntBase[] result = overRem(mbib);
-    if(result[1].sign != 0) {
-      result[1].sign = 1;
-    }
-    return result;
-  }
-  
-  public MutBigIntBase[] overRem(MutBigIntBase mbib) {
-    if(mbib.base != base) {
+  /**
+   * #this and y will not be modified, immutable.
+   */
+  public BigQuoBase<MutBigIntBase> overRem(MutBigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
-    if(mbib.sign == 0) {
+    if(y.sign == 0) {
       throw new DivideByZeroException("Divide by zero");
     }
     if(sign == 0) {
-      return new MutBigIntBase[]{new MutBigIntBase(base),new MutBigIntBase(base)};
+      return new BigQuoBase<MutBigIntBase>(new MutBigIntBase(base),new MutBigIntBase(base));
     }
     
-    MutBigIntBase[] result = divideRem(this,mbib);
-    MutBigIntBase zero = new MutBigIntBase(base);
+    int comp = compare(this,y); // Don't use #compareTo(...); ignore #sign
     
-    result[0].sign = sign * mbib.sign * compare(result[0],zero);
-    result[1].sign = sign * compare(result[1],zero);
+    if(comp < 0) {
+      // For ints, an x (this) value < y (ignore #sign) always has a quotient of 0
+      return new BigQuoBase<MutBigIntBase>(new MutBigIntBase(base),new MutBigIntBase(this));
+    }
+    if(comp == 0) {
+      // Same value; return 1 w/ appropriate sign
+      return new BigQuoBase<MutBigIntBase>(new MutBigIntBase(sign * y.sign,new int[]{1},base,0,1),new MutBigIntBase(base));
+    }
     
-    return result;
+    return divideRem(this,y);
   }
   
-  public MutBigIntBase plus(MutBigIntBase mbib) {
-    if(mbib.base != base) {
+  public MutBigIntBase plus(MutBigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
     if(sign == 0) {
-      return set(mbib);
+      return set(y);
     }
-    if(mbib.sign == 0) {
+    if(y.sign == 0) {
       return this;
     }
-    if(sign != mbib.sign) {
-      // Subtraction
-      int comparison = compare(this,mbib);
+    if(sign != y.sign) {
+      int comp = compare(this,y);
       
-      if(comparison == 0) {
+      if(comp == 0) {
         return zero(); // Same value
       }
-      return subtract(this,mbib,comparison);
-    }
-    return add(this,mbib);
-  }
-  
-  public MutBigIntBase rem(MutBigIntBase mbib) {
-    return set(overRem(mbib)[1]);
-  }
-  
-  public MutBigIntBase set(MutBigIntBase mbib) {
-    base = mbib.base;
-    length = mbib.length;
-    sign = mbib.sign;
-    
-    if(digits.length >= mbib.length) {
-      offset = digits.length - mbib.length;
       
-      for(int i = 0; i < mbib.length; ++i) {
-        digits[offset + i] = mbib.digits[mbib.offset + i];
-      }
+      return subtract(this,y,this,comp);
     }
-    else {
-      digits = Arrays.copyOf(mbib.digits,mbib.digits.length);
-      offset = mbib.offset;
+    
+    return add(this,y,this);
+  }
+  
+  /**
+   * @see #setPrecision(int)
+   */
+  public MutBigIntBase precise(int precisionToAddOrSub) {
+    return setPrecision(length + precisionToAddOrSub);
+  }
+  
+  public MutBigIntBase rem(MutBigIntBase y) {
+    return set(overRem(y).remainder);
+  }
+  
+  public MutBigIntBase rtrim() {
+    if(digits.length <= 1 || length <= 1) {
+      if(digits.length >= 1 && digits[offset] == 0) {
+        sign = 0;
+      }
+      
+      return this;
+    }
+    
+    for(int i = offset + length - 1; i >= offset && digits[offset] == 0; --i) {
+      --length;
+    }
+    
+    // For 0
+    if(length <= 0) {
+      length = 1;
     }
     
     return this;
   }
   
-  public static MutBigIntBase subtract(MutBigIntBase x,MutBigIntBase y,int comparison) {
-    final MutBigIntBase result = x;
-    int[] rd = result.digits; // So that we don't overwrite x just yet
+  /**
+   * @see #setScale(int)
+   */
+  public MutBigIntBase scale(int scaleToAddOrSub) {
+    return setScale(length + scaleToAddOrSub);
+  }
+  
+  /**
+   * <pre>
+   * This doesn't check #base, #sign, or the comparison for internal methods.
+   * 
+   * For those checks, use #minus(...) or #plus(...).
+   * </pre>
+   */
+  protected static MutBigIntBase subtract(MutBigIntBase x,MutBigIntBase y,MutBigIntBase z,int comparison) {
+    int zSign = x.sign * comparison;
     
-    // Make top number (x) the longest (100 - 99)
+    // Make the top number (x) the largest value (99 - 88) for z and the loop
     if(comparison < 0) {
+      MutBigIntBase tmp = x;
       x = y;
-      y = result;
-      
-      if(x.length > rd.length) {
-        rd = new int[x.length];
-      }
+      y = tmp;
     }
     
+    if(z != null) {
+      // Make z.digits be >= the longest number
+      if((z.offset + z.length) < x.length) {
+        z.setPrecision(x.length);
+      }
+      
+      z.sign = zSign;
+    }
+    else {
+      z = new MutBigIntBase(zSign,new int[x.length],x.base,x.length - 1,x.length);
+    }
+    
+    int zOffsetLen = z.offset + z.length;
+    
     int borrow = 0;
-    int ri = rd.length;
-    int xi = x.digits.length;
-    int yi = y.digits.length;
+    int xi = x.offset + x.length;
+    int yi = y.offset + y.length;
+    int zi = zOffsetLen;
     
     // Subtract and borrow
     while(xi > x.offset) {
@@ -460,56 +611,270 @@ public class MutBigIntBase implements Serializable {
       // Also here because of 1000 - 1 to bring down
       if(diff < 0) {
         borrow = 1;
-        diff += result.base;
+        diff += z.base;
       }
       else {
         borrow = 0;
       }
       
-      rd[--ri] = diff;
+      z.digits[--zi] = diff;
     }
     
-    result.digits = rd;
-    result.length = rd.length - ri;
-    result.offset = ri; // Will be wrong if brought down all 0s with borrow
-    result.sign *= comparison;
+    z.length = zOffsetLen - zi;
+    z.offset = zi; // Will be wrong if brought down all 0s with borrow
     
-    return result.ltrim(); // ltrim() to fix offset and length
+    return z.ltrim(); // #ltrim() to fix offset and length (1000 - 999 = 1 [not 001])
   }
   
-  public MutBigIntBase times(MutBigIntBase mbib) {
-    if(mbib.base != base) {
+  public MutBigIntBase times(MutBigIntBase y) {
+    if(y.base != base) {
       throw new IncompatibleBaseException("Incompatible base");
     }
-    if(sign == 0 || mbib.sign == 0) {
+    if(sign == 0 || y.sign == 0) {
       return zero();
     }
-    return set(multiply(this,mbib,null));
+    
+    return set(multiply(this,y,null));
+  }
+  
+  public MutBigIntBase trim() {
+    if(digits.length <= 1 || length <= 1) {
+      if(digits.length >= 1 && digits[offset] == 0) {
+        sign = 0;
+      }
+      
+      return this;
+    }
+    
+    int offsetLen = offset + length;
+    
+    // ltrim
+    while(offset < offsetLen && digits[offset] == 0) {
+      --length;
+      ++offset;
+    }
+    
+    // rtrim
+    for(int i = offsetLen - 1; i >= offset && digits[offset] == 0; --i) {
+      --length;
+    }
+    
+    // For 0
+    if(length <= 0 || offset >= offsetLen) {
+      length = 1;
+      offset = offsetLen - 1;
+      sign = 0;
+    }
+    
+    return this;
+  }
+  
+  public MutBigIntBase under(MutBigIntBase y) {
+    return set(underRem(y).quotient);
+  }
+  
+  /**
+   * #this and y will not be modified, immutable.
+   */
+  public BigQuoBase<MutBigIntBase> underRem(MutBigIntBase y) {
+    return y.overRem(this);
   }
   
   public MutBigIntBase zero() {
-    // For speed, commented this out, not going to worry about it
-    //Arrays.fill(digits,0);
-    sign = 0;
+    if(sign == 0) {
+      return this;
+    }
     
     if(digits.length > 0) {
-      offset = digits.length - 1;
-      digits[offset] = 0;
+      int offsetLen = offset + length;
+      
+      Arrays.fill(digits,offset,offsetLen,0);
+      
+      offset = offsetLen - 1;
       length = 1;
     }
     else {
-      length = 0;
       offset = 0;
+      length = 0;
     }
+    
+    sign = 0;
+    
     return this;
+  }
+  
+  public MutBigIntBase set(MutBigIntBase value) {
+    if(digits.length >= value.length) {
+      Arrays.fill(digits,offset,offset + length,0);
+      
+      int valueOffsetLen = value.offset + value.length;
+      
+      offset = digits.length - value.length;
+      
+      for(int i = offset,j = value.offset; j < valueOffsetLen; ++i,++j) {
+        digits[i] = value.digits[j];
+      }
+    }
+    else {
+      digits = Arrays.copyOf(value.digits,value.digits.length);
+      offset = value.offset;
+    }
+    
+    base = value.base;
+    length = value.length;
+    sign = value.sign;
+    
+    return this;
+  }
+  
+  /**
+   * <pre>
+   * This is a bit untraditional, and as the opposite of #scale(int), it will
+   * increase or decrease the size of #digits on the left side with 0s.
+   * 
+   * This is useful for #add(...), #multiply(...), #subtract(...), etc.
+   * 
+   * If there is room in #digits on the left side, it won't modify anything.
+   * 
+   * If there is room in #digits on the right side, it will shift the digits
+   * right.
+   * 
+   * Else, it will expand the array #digits on the left side.
+   * </pre>
+   */
+  public MutBigIntBase setPrecision(int precision) {
+    if(precision == length) {
+      return this;
+    }
+    if(precision < 1) {
+      return zero();
+    }
+    
+    if(precision > length) {
+      int precDiff = precision - length;
+      
+      // Is there NO room on the left side?
+      if(precDiff > offset) {
+        // Is there NO room on the right side?
+        if(precision > (digits.length - offset)) {
+          // Expand the array on the left side
+          int[] newDigits = new int[digits.length + precDiff];
+          
+          int j = offset;
+          int offsetLen = j + length;
+          
+          offset += precDiff;
+          
+          int i = offset;
+          
+          for(; j < offsetLen; ++i,++j) {
+            newDigits[i] = digits[j];
+          }
+          
+          digits = newDigits;
+        }
+        else {
+          // Shift to the right
+          int j = offset + length - 1;
+          
+          offset += precDiff;
+          
+          int i = offset + precision - 1;
+          
+          for(; j >= 0; --i,--j) {
+            digits[i] = digits[j];
+          }
+          for(; i >= 0; --i) {
+            digits[i] = 0;
+          }
+        }
+      }
+    }
+    else {
+      // Fill the left side with 0s up to the new length
+      int precDiff = length - precision;
+      
+      Arrays.fill(digits,offset,offset + precDiff,0);
+      
+      length = precision; // This is the only time #length is set, by design
+      offset += precDiff;
+    }
+    
+    return this;
+  }
+  
+  /**
+   * <pre>
+   * The decimal point is always at the end of an int, so this will increase or
+   * decrease the size of #digits on the right side with 0s.
+   * 
+   * If there is room in #digits on the right side, it will modify #length and
+   * not modify #digits.
+   * 
+   * If there is room in #digits on the left side, it will shift the digits
+   * left.
+   * 
+   * Else, it will expand the array #digits on the right side.
+   * </pre>
+   */
+  public MutBigIntBase setScale(int scale) {
+    if(scale == length) {
+      return this;
+    }
+    if(scale < 1) {
+      return zero();
+    }
+    
+    if(scale > length) {
+      // Is there NO room on the right side?
+      if(scale > (digits.length - offset)) {
+        int scaleDiff = scale - length;
+        
+        // Is there NO room on the left side?
+        if(scaleDiff > offset) {
+          // Expand the array on the right side
+          // - Arrays#copyOf(...) will increase the size and pad with trailing 0s
+          digits = Arrays.copyOf(digits,digits.length + scaleDiff);
+        }
+        else {
+          // Shift to the left
+          int j = offset;
+          int offsetLen = j + length;
+          
+          offset = offset - scaleDiff;
+          
+          int i = offset;
+          int offsetScale = i + scale;
+          
+          for(; j < offsetLen; ++i,++j) {
+            digits[i] = digits[j];
+          }
+          for(; i < offsetScale; ++i) {
+            digits[i] = 0;
+          }
+        }
+      }
+    }
+    else {
+      // Fill the right side with 0s up to the new length
+      Arrays.fill(digits,offset + scale,offset + length,0);
+    }
+    
+    length = scale;
+    
+    return this;
+  }
+  
+  public int get(int index) {
+    return digits[index];
   }
   
   public int getBase() {
     return base;
   }
   
-  public int getDigit(int i) {
-    return digits[i];
+  public int getDigit(int index) {
+    return digits[offset + index];
   }
   
   public int getLength() {
@@ -532,89 +897,53 @@ public class MutBigIntBase implements Serializable {
     return sign == 0;
   }
   
+  public BigDecBase toBigDecBase() {
+    return null; // TODO: implement
+  }
+  
+  public BigIntBase toBigIntBase() {
+    return new BigIntBase(this);
+  }
+  
+  public MutBigIntBase toMutBigIntBase() {
+    return this;
+  }
+  
   public String toString() {
-    StringBuilder sb = new StringBuilder(length + 1);
+    return toString(true);
+  }
+  
+  public String toString(boolean shouldDowncase) {
+    char charNum = shouldDowncase ? 'a' : 'A';
+    int offsetLen = offset + length;
+    StringBuilder sb = new StringBuilder(length + 1); // +1 for potential sign
     
     if(sign < 0) {
       sb.append('-');
     }
-    for(int i = offset; i < digits.length; ++i) {
+    for(int i = offset; i < offsetLen; ++i) {
       int d = digits[i];
       
       if(d < 10) {
         sb.append((char)('0' + d));
       }
       else {
-        sb.append((char)('A' + (d - 10)));
+        sb.append((char)(charNum + (d - 10)));
       }
     }
+    
     return sb.toString();
   }
   
-  public static void main(String[] args) {
-    System.out.println("<base#> <#> <op> <#>");
-    System.out.println("  Ex: 12 2 + 2");
-    
-    Scanner stdin = new Scanner(System.in);
-    
-    while(true) {
-      System.out.print("> ");
-      String s = stdin.nextLine();
-      
-      if(s == null || s.length() < 7) {
-        break;
-      }
-      
-      String[] parts = s.trim().split("\\s+");
-      
-      if(parts.length < 4) {
-        break;
-      }
-    
-      int base = Integer.parseInt(parts[0]);
-      char operator = parts[2].charAt(0);
-      
-      MutBigIntBase a = new MutBigIntBase(parts[1],base);
-      MutBigIntBase b = new MutBigIntBase(parts[3],base);
-      
-      // Internally, it uses base 2, but calling it 10 arbitrarily
-      BigInteger a10 = new BigInteger(parts[1],base);
-      BigInteger b10 = new BigInteger(parts[3],base);
-      BigInteger c10 = null;
-      
-      switch(operator) {
-        case '+':
-          a.plus(b);
-          c10 = a10.add(b10);
-          break;
-        case '-':
-          a.minus(b);
-          c10 = a10.subtract(b10);
-          break;
-        case '*':
-          a.times(b);
-          c10 = a10.multiply(b10);
-          break;
-        case '/':
-          a.over(b);
-          c10 = a10.divide(b10);
-          break;
-        case '%':
-          a.mod(b);
-          c10 = a10.mod(b10);
-          break;
-        case 'r':
-          a.rem(b);
-          c10 = a10.remainder(b10);
-          break;
-        default: throw new UnsupportedOperationException("Invalid operator: " + operator);
-      }
-      
-      System.out.println("MutBigIntBase:");
-      System.out.println("\t" + a10.toString(base) + " " + operator + " " + b + " = " + a);
-      System.out.println("BigInteger:");
-      System.out.println("\t" + a10.toString(base) + " " + operator + " " + b10.toString(base) + " = " + c10.toString(base));
-      System.out.println("\t" + a10 + " " + operator + " " + b10 + " = " + c10);
-    }
+  public BigDecBase bdb() {
+    return toBigDecBase();
+  }
+  
+  public BigIntBase bib() {
+    return toBigIntBase();
+  }
+  
+  public MutBigIntBase mbib() {
+    return toMutBigIntBase();
   }
 }
