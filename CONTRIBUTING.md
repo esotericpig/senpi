@@ -54,7 +54,7 @@ If you don't feel like following these guidelines exactly, that is okay.  I will
 Quirky comments and/or identifiers are acceptable.
 
 ### License guidelines
-Any code that you want merged must use the GPL-3.0 (or higher) license, and you must accept this if you wish for your code to be included.  Please add a new **@author** with your name (and any contact information) to the top of the file's comment block.  If it is a completely new file, it will only contain your name as the author.  If you modify a file, then your name will go under the last **@author** on a new line:
+Any code that you want merged must use the LGPL-3.0 (or higher) license, and you must accept this if you wish for your code to be included.  Please add a new **@author** with your name (and any contact information) to the top of the file's comment block.  If it is a completely new file, it will only contain your name as the author.  If you modify a file, then your name will go under the last **@author** on a new line:
 
 ```Java
 /**
