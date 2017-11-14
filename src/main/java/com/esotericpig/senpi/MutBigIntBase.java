@@ -237,7 +237,7 @@ public class MutBigIntBase implements BigNumBase<MutBigIntBase> {
    * <pre>
    * This doesn't check #base or #sign for internal methods.
    * 
-   * For those checks, use #compareTo(new MutBigIntBase(<base>)).
+   * For those checks, use #compareTo(new MutBigIntBase(int)).
    * 
    * This always returns a value of 0 or 1 and is important for #divideRem(...).
    * </pre>
