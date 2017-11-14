@@ -26,8 +26,13 @@ import java.util.Scanner;
 // TODO: Add BigDecimal & BigDecBase
 
 /**
+ * <pre>
+ * This ignores unchecked warnings in order to write less code that can use both BigInteger and BigNumBase.
+ * </pre>
+ * 
  * @author Jonathan Bradley Whited (@esotericpig)
  */
+@SuppressWarnings("unchecked")
 public class BigNumBaseApp {
   protected final int BIG_NUMS_COUNT = 9; // Must be a multiple of 3
   
