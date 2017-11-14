@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Jonathan Bradley Whited (@esotericpig)
  */
-public class AllBigIntBaseTest {
+public class BigIntBaseTest {
   public static final int TEST_COUNT = 100; // Number of tests to perform
 
   protected Random rand = null;
