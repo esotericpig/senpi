@@ -20,6 +20,8 @@ Pull requests related to minor issues will probably be unaccepted.
 
 If you believe that you have solved a non-minor bug and/or have made a non-minor enhancement, please create a pull request.  If the bug is in master, create it against master.  If the bug is only in a certain version, create it against that version.
 
+To create a pull request, first, fork the project.  Then commit your changes using a descriptive name for your branch.  Finally, create a pull request.  See [here](https://help.github.com/articles/creating-a-pull-request-from-a-fork/) for more information.
+
 Please adhere to the following source code guidelines:
 - For the most part, use standard Java guidelines (like curly brace on the same line as the method), except for the exceptions below.
 - Use UTF-8 with Linux line endings ('\n', **not** '\r\n' or '\r') (Notepad++ on Windows makes this easy).
@@ -50,6 +52,6 @@ If you don't feel like following these guidelines exactly, that is okay.  I will
 Quirky comments and/or identifiers are acceptable.
 
 Thanks for contributing to **senpi**!  
-🙇 ありがとうございます、  
-🙇 谢谢您，  
+:bow: ありがとうございます、  
+:bow: 谢谢您，  
 〜 The **senpi** Team  
