@@ -176,7 +176,7 @@ public class BigNumBaseApp {
           break;
         
         default: throw new UnsupportedOperationException("Invalid operator: " + operator);
-       }
+      }
     }
   }
   
