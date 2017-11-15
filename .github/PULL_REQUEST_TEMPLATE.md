@@ -7,8 +7,6 @@ Before making a pull request, please read the [Contributing Guide](https://githu
 - #<number>
 
 ### Change(s) proposed:
-- Change 1
-- Change 2
-- Change 3
+- Change X
 
 @esotericpig
