@@ -1,12 +1,12 @@
 Before making a pull request, please read the [Contributing Guide](https://github.com/esotericpig/senpi/blob/master/CONTRIBUTING.md).
 
-### Fixes issue(s):
+### Fixes issues:
 - #<number>
 
-### Adds enhancement(s):
+### Adds enhancements:
 - #<number>
 
-### Change(s) proposed:
+### Changes proposed:
 - Change X
 
 @esotericpig
