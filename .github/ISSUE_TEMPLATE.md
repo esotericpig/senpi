@@ -1,4 +1,4 @@
-Please add appropriate **Label(s)**, such as *bug*, *enhancement*, *minor*, etc.
+Please add appropriate **Labels**, such as *bug*, *enhancement*, *minor*, etc.
 
 ### Current behavior
 
