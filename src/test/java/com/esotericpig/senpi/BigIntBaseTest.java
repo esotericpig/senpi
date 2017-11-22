@@ -40,12 +40,12 @@ public class BigIntBaseTest {
   protected Random rand = null;
   
   @BeforeEach
-  public void initEachTest() {
+  public void setUpEachTest() {
     rand = new Random();
   }
   
   @AfterEach
-  public void finEachTest() {
+  public void tearDownEachTest() {
     rand = null;
   }
   
@@ -84,7 +84,7 @@ public class BigIntBaseTest {
   }
   
   @Test
-  public void testOps() {
+  public void testOperators() {
     // Currently, only tests:
     //   - +, -, *, /, % (modulus), r (remainder)
     //   - Base 12

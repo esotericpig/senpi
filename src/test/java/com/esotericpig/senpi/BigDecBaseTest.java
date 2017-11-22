@@ -35,17 +35,17 @@ public class BigDecBaseTest {
   protected Random rand = null;
   
   @BeforeEach
-  public void initEachTest() {
+  public void setUpEachTest() {
     rand = new Random();
   }
   
   @AfterEach
-  public void finEachTest() {
+  public void tearDownEachTest() {
     rand = null;
   }
   
   @Test
-  public void testRandNumStrings() {
+  public void testRandomNumberStrings() {
     final int base = 12;
     
     StringBuilder msg = new StringBuilder();
