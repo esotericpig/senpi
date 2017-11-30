@@ -5,6 +5,8 @@ The idea was taken from Kryon channelings by channeler Lee Carroll.
 
 The "senpi" name comes from seeing a funny "Notice me, Senpai" meme with the pi symbol.
 
+**Note:** This project is currently in development on v0.6.4.  The first working version will be v1.0.0.
+
 ## TOC
 - [Setup](#setup)
 - [Setup Notes](#setup-notes)
