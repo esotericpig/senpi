@@ -7,14 +7,14 @@ The "senpi" name comes from seeing a funny "Notice me, Senpai" meme with the pi 
 
 **Note:** This project is currently in development on v0.6.4.  The first working version will be v1.0.0.
 
-## TOC
+## Contents
 - [Setup](#setup)
-- [Setup Notes](#setup-notes)
-- [Uninstall](#uninstall)
+  - [Setup Notes](#setup-notes)
+  - [Uninstall](#uninstall)
 - [Use](#use)
 - [License](#license)
 
-## Setup
+## [Setup](#contents)
 This project uses Gradle for the build process.  If you already have Gradle installed, ignore this section.
 
 Graddle Wrapper is included so that you don't have to install Gradle.  Simply run one of the following commands:
@@ -30,21 +30,21 @@ Instead, you can also move `gradle-wrapper.jar` and `gradle-wrapper.properties` 
 
 For safety, `distributionSha256Sum` has been added to `gradle-wrapper.properties`.
 
-## Setup Notes
+### [Setup Notes](#contents)
 By default, Gradle now runs a Daemon.  You can stop it by using this command:
 - `./gradlew(.bat) --stop`
 
 To disable the Daemon, add the following to `$USER_HOME/.gradle/gradle.properties` (or create the file):
 - `org.gradle.daemon=false`
 
-## Uninstall
+### [Uninstall](#contents)
 If you used Gradle Wrapper, do the following:
 1. Stop the Gradle Daemon if it is running:
    - `./gradlew(.bat) --stop`
 2. Delete any files stored in here:
    - `$USER_HOME/.gradle/wrapper/dists`
 
-## Use
+## [Use](#contents)
 Default tasks (gradle -q) are:
 - `run`
 
@@ -61,7 +61,7 @@ Useful tasks:
 You can exclude a task using `-x`.  This is useful for long and/or annoying tasks, like `test`, or for debugging:
 - `gradle -x test clean build run`
 
-## License
+## [License](#contents)
 > senpi (https://github.com/esotericpig/senpi)  
 > Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)  
 > 
