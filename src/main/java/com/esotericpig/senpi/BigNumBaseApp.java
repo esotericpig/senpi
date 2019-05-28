@@ -103,9 +103,9 @@ public class BigNumBaseApp {
       
       ++i; // z
       
-      // Clone MutBigIntBase because it's mutable
+      // Copy MutBigIntBase because it's mutable
       if(x instanceof MutBigIntBase) {
-        x = ((BigNumBase)x).clone();
+        x = ((BigNumBase)x).copy();
       }
       
       // If an operator doesn't exist, use ZERO for #genBigNumStrs(...)

@@ -98,6 +98,10 @@ public class MutBigIntBase implements BigNumBase<MutBigIntBase> {
     this(valueStr,base,new BigStrBase(shouldTruncZero,false));
   }
   
+  public MutBigIntBase copy() {
+    return new MutBigIntBase(this);
+  }
+  
   public MutBigIntBase abs() {
     sign &= 1;
     return this;
@@ -175,10 +179,6 @@ public class MutBigIntBase implements BigNumBase<MutBigIntBase> {
     }
     
     return z;
-  }
-  
-  public MutBigIntBase clone() {
-    return new MutBigIntBase(this);
   }
   
   /**
@@ -338,7 +338,7 @@ public class MutBigIntBase implements BigNumBase<MutBigIntBase> {
     
     // Use #negate() and #plus(..) instead of reversing the order because this class is mutable, else we'd
     //   have to create a new instance.
-    // Equivalent to:  (this.clone()).minus(result.quotient.times(y))
+    // Equivalent to:  (this.copy()).minus(result.quotient.times(y))
     return result.quotient.times(y).negate().plus(this);
   }
   

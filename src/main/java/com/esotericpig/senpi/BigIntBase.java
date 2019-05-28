@@ -86,6 +86,10 @@ public class BigIntBase implements BigNumBase<BigIntBase>,CacheableBigNumBase<Bi
     this.sign = value.sign;
   }
   
+  public BigIntBase copy() {
+    return new BigIntBase(this);
+  }
+  
   public BigIntBase abs() {
     return (sign <= -1) ? new BigIntBase(this,1) : this;
   }
@@ -139,10 +143,6 @@ public class BigIntBase implements BigNumBase<BigIntBase>,CacheableBigNumBase<Bi
     }
     
     return z;
-  }
-  
-  public BigIntBase clone() {
-    return new BigIntBase(this);
   }
   
   protected static int compare(int[] x,int[] y) {

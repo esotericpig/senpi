@@ -38,12 +38,12 @@ public class BigIntWrap /*implements BigNumBase<BigIntWrap>*/ {
     this(value.value);
   }
   
-  public BigIntWrap abs() {
-    return valueOf(value.abs());
+  public BigIntWrap copy() {
+    return new BigIntWrap(this);
   }
   
-  public BigIntWrap clone() {
-    return new BigIntWrap(this);
+  public BigIntWrap abs() {
+    return valueOf(value.abs());
   }
   
   public BigIntWrap minus(BigIntWrap y) {

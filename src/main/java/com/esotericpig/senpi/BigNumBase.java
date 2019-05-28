@@ -23,11 +23,12 @@ import java.io.Serializable;
 /**
  * @author Jonathan Bradley Whited (@esotericpig)
  */
-public interface BigNumBase<N extends BigNumBase> extends Cloneable,Comparable<N>,Serializable {
+public interface BigNumBase<N extends BigNumBase> extends Comparable<N>,Serializable {
   public static final int DEFAULT_BASE = 12;
   
+  public abstract N copy();
+  
   public abstract N abs();
-  public abstract N clone();
   public abstract N floorMod(N y);
   public abstract N ltrim();
   public abstract N minus(N y);
