@@ -1,41 +1,28 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
- * 
- * senpi is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * senpi is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with senpi.  If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (c) 2016-2017 Bradley Whited
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
  */
 
-apply plugin: 'application'
-apply plugin: 'org.junit.platform.gradle.plugin'
+plugins {
+  id 'application'
+}
 
 /**
  * Properties
  */
 ext.name    = 'senpi'
 version     = '0.6.4'
-ext.author  = 'Jonathan Bradley Whited (@esotericpig)'
+ext.author  = 'Bradley Whited'
 ext.license = 'LGPL-3.0'
 
 ext.summary  = 'pi base 12'
 description  = 'pi in base 12 with custom-made Big Integer/Decimal classes for use with (almost) any base.'
 ext.homepage = 'https://github.com/esotericpig/senpi'
 
-group         = 'com.esotericpig.senpi'
-mainClassName = "${project.group}.Senpi"
-
-sourceCompatibility = '1.8' // Source language to interpret (*.java)
-targetCompatibility = '1.8' // Bytecode to output (*.class)
+group             = 'com.esotericpig.senpi'
+ext.mainClassName = "${project.group}.Senpi"
 
 ext.charset  = 'UTF-8'
 ext.encoding = 'UTF-8'
@@ -50,35 +37,28 @@ ext.junitVintageVersion = '4.12.2' // Not used
 // Javadoc
 javadoc.title = "${project.ext.name} v${project.version}"
 
+application {
+  mainClass.set(project.mainClassName)
+  applicationName project.name
+}
+
+java {
+  sourceCompatibility = '1.8' // Source language to interpret (*.java).
+  targetCompatibility = '1.8' // Bytecode to output (*.class).
+}
+
 /**
  * Repositories, dependencies, etc.
  */
-buildscript {
-  // Buildscript properties must be inside buildscript
-  ext.junitPlatformVersion = '1.0.2'
-  
-  repositories {
-    mavenCentral()
-  }
-  
-  dependencies {
-    // For plugin 'org.junit.platform.gradle.plugin'
-    classpath "org.junit.platform:junit-platform-gradle-plugin:${project.ext.junitPlatformVersion}"
-  }
-}
-
 repositories {
   mavenCentral()
 }
 
 dependencies {
-  //testCompile "junit:junit:${project.ext.junit4Version}"
-  // To avoid compiler warnings about API$Status.STABLE
-  testCompile "org.apiguardian:apiguardian-api:${project.ext.apiGuardianVersion}"
-  testCompile "org.junit.jupiter:junit-jupiter-api:${project.ext.junitJupiterVersion}"
-  
-  testRuntime "org.junit.jupiter:junit-jupiter-engine:${project.ext.junitJupiterVersion}"
-  //testRuntime("org.junit.vintage:junit-vintage-engine:${project.ext.junitVintageVersion}")
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.+'
+
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.+'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.+'
 }
 
 /**
@@ -94,23 +74,37 @@ compileTestJava {
   encoding = project.ext.encoding
 }
 
+tasks.named('test') {
+  useJUnitPlatform()
+}
+
 jar {
   manifest {
     attributes 'Main-Class': mainClassName
-    attributes 'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
-    
+    attributes 'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' ')
+
     attributes 'App-Name': project.ext.name
     attributes 'App-Version': project.version
     attributes 'App-Author': project.ext.author
     attributes 'App-License': project.ext.license
-    
+
     attributes 'App-Summary': project.ext.summary
     attributes 'App-Description': project.description
     attributes 'App-Homepage': project.ext.homepage
   }
-  
-  from configurations.compile.collect {
-    it.isDirectory() ? it : zipTree(it)
+
+  from {
+    configurations.runtimeClasspath.collect {
+      def tree = it.isDirectory() ? fileTree(it) : zipTree(it)
+
+      tree.matching {
+        // Include only the essential files.
+        //include '**/*.class', '**/*.java', '**/resources/'
+
+        // Exclude Javadoc/files in root and META-INF.
+        exclude '*','META-INF/'
+      }
+    }
   }
 }
 

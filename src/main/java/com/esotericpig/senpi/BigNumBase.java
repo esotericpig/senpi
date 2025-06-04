@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2017 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,7 @@ package com.esotericpig.senpi;
 import java.io.Serializable;
 
 /**
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public interface BigNumBase<N extends BigNumBase> extends Comparable<N>,Serializable {
   public static final int DEFAULT_BASE = 12;

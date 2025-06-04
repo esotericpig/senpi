@@ -63,7 +63,7 @@ You can exclude a task using `-x`.  This is useful for long and/or annoying task
 
 ## [License](#contents)
 > senpi (https://github.com/esotericpig/senpi)  
-> Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)  
+> Copyright (c) 2016-2017 Bradley Whited  
 > 
 > senpi is free software: you can redistribute it and/or modify  
 > it under the terms of the GNU Lesser General Public License as published by  

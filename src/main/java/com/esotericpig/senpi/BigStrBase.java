@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2016-2017 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -28,7 +28,7 @@ import java.util.Random;
  * 2) Random number strings in user-specified bases.
  * </pre>
  *
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public class BigStrBase implements Serializable {
   private static final long serialVersionUID = 1L;

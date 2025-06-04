@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2018 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2018 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,7 +21,7 @@ package com.esotericpig.senpi;
 import java.math.BigInteger;
 
 /**
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public class BigIntWrap /*implements BigNumBase<BigIntWrap>*/ {
   protected BigInteger value;

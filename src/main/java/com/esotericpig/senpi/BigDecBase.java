@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2016-2017 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,7 +29,7 @@ import java.math.RoundingMode;
 // TODO: Goal: 1/3=0.4 (instead of 0.333...); 1/6=0.2; 1/9=0.14
 
 /**
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public class BigDecBase implements Serializable {
   private static final long serialVersionUID = 1L;

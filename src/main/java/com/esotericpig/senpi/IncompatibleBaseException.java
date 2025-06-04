@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2016-2017 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@
 package com.esotericpig.senpi;
 
 /**
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public class IncompatibleBaseException extends IllegalArgumentException {
   private static final long serialVersionUID = 1L;

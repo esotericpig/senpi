@@ -1,6 +1,6 @@
 /**
  * This file is part of senpi.
- * Copyright (c) 2016-2017 Jonathan Bradley Whited (@esotericpig)
+ * Copyright (c) 2016-2017 Bradley Whited
  * 
  * senpi is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 // TODO: test #floorMod(...) using Math.floorMod(...) with regular ints
 
 /**
- * @author Jonathan Bradley Whited (@esotericpig)
+ * @author Bradley Whited
  */
 public class BigIntBaseTest {
   public static final int TEST_COUNT = 100; // Number of tests to perform
